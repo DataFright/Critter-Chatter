@@ -4,9 +4,26 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "dev:test": "next dev -p 3010",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "start:test": "next start -p 3010",
+    "lint": "eslint",
+    "test": "vitest",
+    "test:run": "vitest run",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest run --coverage",
+    "test:e2e": "npm run build && start-server-and-test start:test http://localhost:3010 cypress:run:test",
+    "test:e2e:open": "npm run build && start-server-and-test start:test http://localhost:3010 cypress:open:test",
+    "test:load": "start-server-and-test start:test http://localhost:3010 \"cross-env BASE_URL=http://localhost:3010 MOCK_AI=1 node --experimental-vm-modules tests/load/load.js\"",
+    "report:clean": "node -e \"const fs=require('fs');fs.rmSync('tests/reports',{recursive:true,force:true});console.log('Cleaned tests/reports');\"",
+    "report:e2e:merge": "node -e \"const fs=require('fs');const path=require('path');const root='tests/reports/cypress';const dst=path.join(root,'merged.json');const walk=(d)=>{if(!fs.existsSync(d))return[];return fs.readdirSync(d,{withFileTypes:true}).flatMap((e)=>{const p=path.join(d,e.name);return e.isDirectory()?walk(p):[p]})};const files=walk(root).filter((p)=>p.toLowerCase().endsWith('.json')&&!p.toLowerCase().endsWith('merged.json'));if(!files.length){throw new Error('Missing Cypress report JSON under '+root)};fs.copyFileSync(files[0],dst);console.log('Created '+dst+' from '+files[0]);\"",
+    "report:summary": "node scripts/generate-report-summary.mjs",
+    "test:all": "npm run report:clean && npm run test:coverage && npm run test:e2e && npm run report:e2e:merge && npm run test:load && npm run report:summary",
+    "cypress:run": "cross-env CYPRESS_BASE_URL=http://localhost:3010 cypress run --browser chrome",
+    "cypress:open": "cross-env CYPRESS_BASE_URL=http://localhost:3010 cypress open --browser chrome",
+    "cypress:run:test": "cross-env CYPRESS_BASE_URL=http://localhost:3010 cypress run --browser chrome",
+    "cypress:open:test": "cross-env CYPRESS_BASE_URL=http://localhost:3010 cypress open --browser chrome"
   },
   "dependencies": {
     "next": "16.2.1",
@@ -15,12 +32,33 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@vitejs/plugin-react": "^6.0.1",
+    "@vitest/coverage-v8": "^4.1.2",
+    "@vitest/ui": "^4.1.2",
+    "autocannon": "^8.0.0",
+    "concurrently": "^9.2.1",
+    "cross-env": "^10.1.0",
+    "cypress": "^15.13.0",
+    "cypress-mochawesome-reporter": "^4.0.2",
     "eslint": "^9",
     "eslint-config-next": "16.2.1",
+    "jsdom": "^29.0.1",
+    "mochawesome-merge": "^5.1.1",
+    "mochawesome-report-generator": "^6.3.2",
+    "msw": "^2.12.14",
+    "start-server-and-test": "^3.0.0",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^4.1.2"
+  },
+  "msw": {
+    "workerDirectory": [
+      "public"
+    ]
   }
 }

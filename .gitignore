@@ -12,6 +12,12 @@
 
 # testing
 /coverage
+/tests/reports/vitest/
+/tests/reports/cypress/
+/tests/reports/load/
+/tests/reports/coverage/
+!/tests/reports/summary.json
+!/tests/reports/summary.md
 
 # next.js
 /.next/

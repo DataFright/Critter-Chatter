@@ -1,0 +1,334 @@
+
+Warning: The allowCypressEnv configuration option is enabled. This allows any browser code to read values from Cypress.env(). This is insecure and will be removed in a future major version.
+
+1. Replace Cypress.env() calls with cy.env() (for sensitive values) or Cypress.expose() (for public configuration)
+2. Set allowCypressEnv: false in your Cypress configuration to disable Cypress.env()
+
+Learn more: https://on.cypress.io/cypress-env-migration
+
+Warning: We failed to trash the existing run results.
+
+This error will not affect or change the exit code.
+
+Error: Command failed: C:\Users\sirsw\AppData\Local\Cypress\Cache\15.13.0\Cypress\resources\app\node_modules\trash\lib\windows-trash.exe C:\Users\sirsw\OneDrive\Documents\vs code projects\chatbotstep\cypress\videos\thoughts.cy.ts.mp4
+
+    at genericNodeError (node:internal/errors:983:15)
+    at wrappedFn (node:internal/errors:537:14)
+    at ChildProcess.exithandler (node:child_process:417:12)
+    at ChildProcess.emit (node:events:519:28)
+    at maybeClose (node:internal/child_process:1101:16)
+    at ChildProcess._handle.onexit (node:internal/child_process:304:5)
+
+====================================================================================================
+
+  (Run Starting)
+
+  ┌────────────────────────────────────────────────────────────────────────────────────────────────┐
+  │ Cypress:        15.13.0                                                                        │
+  │ Browser:        Electron 138 (headless)                                                        │
+  │ Node Version:   v25.8.1 (C:\Program Files\nodejs\node.exe)                                     │
+  │ Specs:          1 found (thoughts.cy.ts)                                                       │
+  │ Searched:       C:\Users\sirsw\OneDrive\Documents\vs code projects\chatbotstep\tests\e2e\thoug │
+  │                 hts.cy.ts                                                                      │
+  └────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+Remove output folder C:\Users\sirsw\OneDrive\Documents\vs code projects\chatbotstep\tests\reports\cypress
+
+────────────────────────────────────────────────────────────────────────────────────────────────────
+                                                                                                    
+  Running:  thoughts.cy.ts                                                                  (1 of 1)
+
+
+  ChatBotStep — Thought Window UI
+    1) renders thought window on right side of split view
+    2) displays thought window header with character avatar
+    √ shows Start button when not thinking
+    √ enables Start button click to initiate thought chain
+    √ displays Stop button while thinking
+    √ stops thought chain when Stop button clicked
+    3) shows progress counter during thought generation
+    4) displays thought messages as chat bubbles
+    5) thought messages display with sequential numbering
+    6) thought window scrolls to latest thought automatically
+    7) shows empty state message before thoughts start
+    8) thought messages disappear when Stop is clicked
+    9) allows main chat while thoughts are generating
+    10) main chat and thought window are independent
+    11) thought progress updates in real-time
+    12) changes character updates thought window header
+    13) thought messages maintain character avatar
+    14) thought window uses different styling from main chat
+    √ handles rapid Start/Stop interactions
+    √ preserves main chat messages during thought chain
+    15) thought window scrolls independently from main chat
+    √ disables Start/Stop buttons when main chat is loading
+    √ shows loading indicator in thought window during generation
+    16) thought numbers match count in progress indicator
+
+  ChatBotStep — Thought Window Error Handling
+    √ handles thought generation failure gracefully
+    √ recovers from failed thought chain
+    √ handles network timeout during thought generation
+    √ does not block main chat on thought generation error
+    17) shows thought window remains functional after main chat error
+
+  ChatBotStep — Thought Window Performance
+    √ thought window does not block main chat input responsiveness
+    √ handles scrolling in thought window without impacting main chat render
+    18) completes 50-thought sequence in reasonable time
+
+
+  14 passing (9m)
+  18 failing
+
+  1) ChatBotStep — Thought Window UI
+       renders thought window on right side of split view:
+     AssertionError: Timed out retrying after 12000ms: Expected to find content: 'Thoughts' but never did.
+      at Context.eval (webpack://chatbotstep/./tests/e2e/thoughts.cy.ts:18:28)
+
+  2) ChatBotStep — Thought Window UI
+       displays thought window header with character avatar:
+     AssertionError: Timed out retrying after 12000ms: Expected to find content: 'Thoughts' but never did.
+      at Context.eval (webpack://chatbotstep/./tests/e2e/thoughts.cy.ts:24:7)
+
+  3) ChatBotStep — Thought Window UI
+       shows progress counter during thought generation:
+     AssertionError: Timed out retrying after 2000ms: Expected to find content: '/\d+\/50/' but never did.
+      at Context.eval (webpack://chatbotstep/./tests/e2e/thoughts.cy.ts:57:46)
+
+  4) ChatBotStep — Thought Window UI
+       displays thought messages as chat bubbles:
+     AssertionError: Timed out retrying after 5000ms: Expected to find content: 'Thought 1' but never did.
+      at Context.eval (webpack://chatbotstep/./tests/e2e/thoughts.cy.ts:64:48)
+
+  5) ChatBotStep — Thought Window UI
+       thought messages display with sequential numbering:
+     AssertionError: Timed out retrying after 10000ms: Expected to find content: 'Thought 2' but never did.
+      at Context.eval (webpack://chatbotstep/./tests/e2e/thoughts.cy.ts:76:49)
+
+  6) ChatBotStep — Thought Window UI
+       thought window scrolls to latest thought automatically:
+     AssertionError: Timed out retrying after 12000ms: Expected to find content: 'Thoughts' within the element: <div.h-full.flex.items-center.justify-center.text-center.text-sm.text-zinc-500.px-6> but never did.
+      at Context.eval (webpack://chatbotstep/./tests/e2e/thoughts.cy.ts:84:40)
+
+  7) ChatBotStep — Thought Window UI
+       shows empty state message before thoughts start:
+     AssertionError: Timed out retrying after 12000ms: Expected to find content: 'Click "▶ Start" to generate autonomous thoughts' but never did.
+      at Context.eval (webpack://chatbotstep/./tests/e2e/thoughts.cy.ts:92:67)
+
+  8) ChatBotStep — Thought Window UI
+       thought messages disappear when Stop is clicked:
+     AssertionError: Timed out retrying after 5000ms: Expected to find content: 'Thought 2' but never did.
+      at Context.eval (webpack://chatbotstep/./tests/e2e/thoughts.cy.ts:99:48)
+
+  9) ChatBotStep — Thought Window UI
+       allows main chat while thoughts are generating:
+     AssertionError: Timed out retrying after 2000ms: Expected to find content: '/\d+\/50/' but never did.
+      at Context.eval (webpack://chatbotstep/./tests/e2e/thoughts.cy.ts:114:46)
+
+  10) ChatBotStep — Thought Window UI
+       main chat and thought window are independent:
+     AssertionError: Timed out retrying after 5000ms: Expected to find content: 'Thought 1' but never did.
+      at Context.eval (webpack://chatbotstep/./tests/e2e/thoughts.cy.ts:145:48)
+
+  11) ChatBotStep — Thought Window UI
+       thought progress updates in real-time:
+     AssertionError: Timed out retrying after 2000ms: Expected to find content: '/1\/50|2\/50/' but never did.
+      at Context.eval (webpack://chatbotstep/./tests/e2e/thoughts.cy.ts:152:50)
+
+  12) ChatBotStep — Thought Window UI
+       changes character updates thought window header:
+     AssertionError: Timed out retrying after 12000ms: Expected to find content: 'Thoughts' within the element: <div.flex-1.min-w-0> but never did.
+      at Context.eval (webpack://chatbotstep/./tests/e2e/thoughts.cy.ts:167:32)
+      at withinFn (http://localhost:3010/__cypress/runner/cypress_runner.js:135965:8)
+      at <unknown> (http://localhost:3010/__cypress/runner/cypress_runner.js:136046:16)
+      at __WEBPACK_DEFAULT_EXPORT__ (http://localhost:3010/__cypress/runner/cypress_runner.js:133893:10)
+      at Context.within (http://localhost:3010/__cypress/runner/cypress_runner.js:136032:67)
+      at wrapped (http://localhost:3010/__cypress/runner/cypress_runner.js:146287:19)
+
+  13) ChatBotStep — Thought Window UI
+       thought messages maintain character avatar:
+     AssertionError: Timed out retrying after 5000ms: Expected to find content: 'Thought 1' but never did.
+      at Context.eval (webpack://chatbotstep/./tests/e2e/thoughts.cy.ts:175:48)
+
+  14) ChatBotStep — Thought Window UI
+       thought window uses different styling from main chat:
+     AssertionError: Timed out retrying after 12000ms: Expected to find content: 'Thoughts' but never did.
+      at Context.eval (webpack://chatbotstep/./tests/e2e/thoughts.cy.ts:187:7)
+
+  15) ChatBotStep — Thought Window UI
+       thought window scrolls independently from main chat:
+     AssertionError: Timed out retrying after 5000ms: Expected to find content: '/Thought \d/' but never did.
+      at Context.eval (webpack://chatbotstep/./tests/e2e/thoughts.cy.ts:237:49)
+
+  16) ChatBotStep — Thought Window UI
+       thought numbers match count in progress indicator:
+     AssertionError: Timed out retrying after 12000ms: Expected to find content: '/\d+\/50/' but never did.
+      at Context.eval (webpack://chatbotstep/./tests/e2e/thoughts.cy.ts:266:27)
+
+  17) ChatBotStep — Thought Window Error Handling
+       shows thought window remains functional after main chat error:
+     AssertionError: Timed out retrying after 3000ms: Expected to find content: '/\d+\/50/' but never did.
+      at Context.eval (webpack://chatbotstep/./tests/e2e/thoughts.cy.ts:345:46)
+
+  18) ChatBotStep — Thought Window Performance
+       completes 50-thought sequence in reasonable time:
+     AssertionError: Timed out retrying after 120000ms: Expected to find content: '/\d+\/50/' but never did.
+      at Context.eval (webpack://chatbotstep/./tests/e2e/thoughts.cy.ts:379:48)
+
+
+
+[mochawesome] Report JSON saved to C:\Users\sirsw\OneDrive\Documents\vs code projects\chatbotstep\tests\reports\cypress\.jsons\index.json
+
+
+  (Results)
+
+  ┌────────────────────────────────────────────────────────────────────────────────────────────────┐
+  │ Tests:        32                                                                               │
+  │ Passing:      14                                                                               │
+  │ Failing:      18                                                                               │
+  │ Pending:      0                                                                                │
+  │ Skipped:      0                                                                                │
+  │ Screenshots:  36                                                                               │
+  │ Video:        true                                                                             │
+  │ Duration:     9 minutes, 21 seconds                                                            │
+  │ Spec Ran:     thoughts.cy.ts                                                                   │
+  └────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+
+  (Screenshots)
+
+  -  C:\Users\sirsw\OneDrive\Documents\vs code projects\chatbotstep\cypress\screensho     (1280x720)
+     ts\thoughts.cy.ts\ChatBotStep — Thought Window UI -- renders thought window on r               
+     ight side of split view (failed).png                                                           
+  -  C:\Users\sirsw\OneDrive\Documents\vs code projects\chatbotstep\cypress\screensho     (1280x720)
+     ts\thoughts.cy.ts\ChatBotStep — Thought Window UI -- renders thought window on r               
+     ight side of split view (failed) (attempt 2).png                                               
+  -  C:\Users\sirsw\OneDrive\Documents\vs code projects\chatbotstep\cypress\screensho     (1280x720)
+     ts\thoughts.cy.ts\ChatBotStep — Thought Window UI -- displays thought window hea               
+     der with character avatar (failed).png                                                         
+  -  C:\Users\sirsw\OneDrive\Documents\vs code projects\chatbotstep\cypress\screensho     (1280x720)
+     ts\thoughts.cy.ts\ChatBotStep — Thought Window UI -- displays thought window hea               
+     der with character avatar (failed) (attempt 2).png                                             
+  -  C:\Users\sirsw\OneDrive\Documents\vs code projects\chatbotstep\cypress\screensho     (1280x720)
+     ts\thoughts.cy.ts\ChatBotStep — Thought Window UI -- shows progress counter duri               
+     ng thought generation (failed).png                                                             
+  -  C:\Users\sirsw\OneDrive\Documents\vs code projects\chatbotstep\cypress\screensho     (1280x720)
+     ts\thoughts.cy.ts\ChatBotStep — Thought Window UI -- shows progress counter duri               
+     ng thought generation (failed) (attempt 2).png                                                 
+  -  C:\Users\sirsw\OneDrive\Documents\vs code projects\chatbotstep\cypress\screensho     (1280x720)
+     ts\thoughts.cy.ts\ChatBotStep — Thought Window UI -- displays thought messages a               
+     s chat bubbles (failed).png                                                                    
+  -  C:\Users\sirsw\OneDrive\Documents\vs code projects\chatbotstep\cypress\screensho     (1280x720)
+     ts\thoughts.cy.ts\ChatBotStep — Thought Window UI -- displays thought messages a               
+     s chat bubbles (failed) (attempt 2).png                                                        
+  -  C:\Users\sirsw\OneDrive\Documents\vs code projects\chatbotstep\cypress\screensho     (1280x720)
+     ts\thoughts.cy.ts\ChatBotStep — Thought Window UI -- thought messages display wi               
+     th sequential numbering (failed).png                                                           
+  -  C:\Users\sirsw\OneDrive\Documents\vs code projects\chatbotstep\cypress\screensho     (1280x720)
+     ts\thoughts.cy.ts\ChatBotStep — Thought Window UI -- thought messages display wi               
+     th sequential numbering (failed) (attempt 2).png                                               
+  -  C:\Users\sirsw\OneDrive\Documents\vs code projects\chatbotstep\cypress\screensho     (1280x720)
+     ts\thoughts.cy.ts\ChatBotStep — Thought Window UI -- thought window scrolls to l               
+     atest thought automatically (failed).png                                                       
+  -  C:\Users\sirsw\OneDrive\Documents\vs code projects\chatbotstep\cypress\screensho     (1280x720)
+     ts\thoughts.cy.ts\ChatBotStep — Thought Window UI -- thought window scrolls to l               
+     atest thought automatically (failed) (attempt 2).png                                           
+  -  C:\Users\sirsw\OneDrive\Documents\vs code projects\chatbotstep\cypress\screensho     (1280x720)
+     ts\thoughts.cy.ts\ChatBotStep — Thought Window UI -- shows empty state message b               
+     efore thoughts start (failed).png                                                              
+  -  C:\Users\sirsw\OneDrive\Documents\vs code projects\chatbotstep\cypress\screensho     (1280x720)
+     ts\thoughts.cy.ts\ChatBotStep — Thought Window UI -- shows empty state message b               
+     efore thoughts start (failed) (attempt 2).png                                                  
+  -  C:\Users\sirsw\OneDrive\Documents\vs code projects\chatbotstep\cypress\screensho     (1280x720)
+     ts\thoughts.cy.ts\ChatBotStep — Thought Window UI -- thought messages disappear                
+     when Stop is clicked (failed).png                                                              
+  -  C:\Users\sirsw\OneDrive\Documents\vs code projects\chatbotstep\cypress\screensho     (1280x720)
+     ts\thoughts.cy.ts\ChatBotStep — Thought Window UI -- thought messages disappear                
+     when Stop is clicked (failed) (attempt 2).png                                                  
+  -  C:\Users\sirsw\OneDrive\Documents\vs code projects\chatbotstep\cypress\screensho     (1280x720)
+     ts\thoughts.cy.ts\ChatBotStep — Thought Window UI -- allows main chat while thou               
+     ghts are generating (failed).png                                                               
+  -  C:\Users\sirsw\OneDrive\Documents\vs code projects\chatbotstep\cypress\screensho     (1280x720)
+     ts\thoughts.cy.ts\ChatBotStep — Thought Window UI -- allows main chat while thou               
+     ghts are generating (failed) (attempt 2).png                                                   
+  -  C:\Users\sirsw\OneDrive\Documents\vs code projects\chatbotstep\cypress\screensho     (1280x720)
+     ts\thoughts.cy.ts\ChatBotStep — Thought Window UI -- main chat and thought windo               
+     w are independent (failed).png                                                                 
+  -  C:\Users\sirsw\OneDrive\Documents\vs code projects\chatbotstep\cypress\screensho     (1280x720)
+     ts\thoughts.cy.ts\ChatBotStep — Thought Window UI -- main chat and thought windo               
+     w are independent (failed) (attempt 2) (1).png                                                 
+  -  C:\Users\sirsw\OneDrive\Documents\vs code projects\chatbotstep\cypress\screensho     (1280x720)
+     ts\thoughts.cy.ts\ChatBotStep — Thought Window UI -- thought progress updates in               
+      real-time (failed) (1).png                                                                    
+  -  C:\Users\sirsw\OneDrive\Documents\vs code projects\chatbotstep\cypress\screensho     (1280x720)
+     ts\thoughts.cy.ts\ChatBotStep — Thought Window UI -- thought progress updates in               
+      real-time (failed) (attempt 2) (1).png                                                        
+  -  C:\Users\sirsw\OneDrive\Documents\vs code projects\chatbotstep\cypress\screensho     (1280x720)
+     ts\thoughts.cy.ts\ChatBotStep — Thought Window UI -- changes character updates t               
+     hought window header (failed) (1).png                                                          
+  -  C:\Users\sirsw\OneDrive\Documents\vs code projects\chatbotstep\cypress\screensho     (1280x720)
+     ts\thoughts.cy.ts\ChatBotStep — Thought Window UI -- changes character updates t               
+     hought window header (failed) (attempt 2) (1).png                                              
+  -  C:\Users\sirsw\OneDrive\Documents\vs code projects\chatbotstep\cypress\screensho     (1280x720)
+     ts\thoughts.cy.ts\ChatBotStep — Thought Window UI -- thought messages maintain c               
+     haracter avatar (failed) (1).png                                                               
+  -  C:\Users\sirsw\OneDrive\Documents\vs code projects\chatbotstep\cypress\screensho     (1280x720)
+     ts\thoughts.cy.ts\ChatBotStep — Thought Window UI -- thought messages maintain c               
+     haracter avatar (failed) (attempt 2) (1).png                                                   
+  -  C:\Users\sirsw\OneDrive\Documents\vs code projects\chatbotstep\cypress\screensho     (1280x720)
+     ts\thoughts.cy.ts\ChatBotStep — Thought Window UI -- thought window uses differe               
+     nt styling from main chat (failed) (1).png                                                     
+  -  C:\Users\sirsw\OneDrive\Documents\vs code projects\chatbotstep\cypress\screensho     (1280x720)
+     ts\thoughts.cy.ts\ChatBotStep — Thought Window UI -- thought window uses differe               
+     nt styling from main chat (failed) (attempt 2) (1).png                                         
+  -  C:\Users\sirsw\OneDrive\Documents\vs code projects\chatbotstep\cypress\screensho     (1280x720)
+     ts\thoughts.cy.ts\ChatBotStep — Thought Window UI -- thought window scrolls inde               
+     pendently from main chat (failed) (1).png                                                      
+  -  C:\Users\sirsw\OneDrive\Documents\vs code projects\chatbotstep\cypress\screensho     (1280x720)
+     ts\thoughts.cy.ts\ChatBotStep — Thought Window UI -- thought window scrolls inde               
+     pendently from main chat (failed) (attempt 2) (1).png                                          
+  -  C:\Users\sirsw\OneDrive\Documents\vs code projects\chatbotstep\cypress\screensho     (1280x720)
+     ts\thoughts.cy.ts\ChatBotStep — Thought Window UI -- thought numbers match count               
+      in progress indicator (failed) (1).png                                                        
+  -  C:\Users\sirsw\OneDrive\Documents\vs code projects\chatbotstep\cypress\screensho     (1280x720)
+     ts\thoughts.cy.ts\ChatBotStep — Thought Window UI -- thought numbers match count               
+      in progress indicator (failed) (attempt 2) (1).png                                            
+  -  C:\Users\sirsw\OneDrive\Documents\vs code projects\chatbotstep\cypress\screensho     (1280x720)
+     ts\thoughts.cy.ts\ChatBotStep — Thought Window Error Handling -- shows thought w               
+     indow remains functional after main chat error (failed) (1).png                                
+  -  C:\Users\sirsw\OneDrive\Documents\vs code projects\chatbotstep\cypress\screensho     (1280x720)
+     ts\thoughts.cy.ts\ChatBotStep — Thought Window Error Handling -- shows thought w               
+     indow remains functional after main chat error (failed) (attempt 2) (1).png                    
+  -  C:\Users\sirsw\OneDrive\Documents\vs code projects\chatbotstep\cypress\screensho     (1280x720)
+     ts\thoughts.cy.ts\ChatBotStep — Thought Window Performance -- completes 50-thoug               
+     ht sequence in reasonable time (failed).png                                                    
+  -  C:\Users\sirsw\OneDrive\Documents\vs code projects\chatbotstep\cypress\screensho     (1280x720)
+     ts\thoughts.cy.ts\ChatBotStep — Thought Window Performance -- completes 50-thoug               
+     ht sequence in reasonable time (failed) (attempt 2).png                                        
+
+
+  (Video)
+
+  -  Video output: C:\Users\sirsw\OneDrive\Documents\vs code projects\chatbotstep\cypress\videos\thoughts.cy.ts.mp4
+
+Start generate report process
+Read and merge jsons from "C:\Users\sirsw\OneDrive\Documents\vs code projects\chatbotstep\tests\reports\cypress\.jsons"
+Copy media folder from "C:\Users\sirsw\OneDrive\Documents\vs code projects\chatbotstep\cypress\screenshots" to "C:\Users\sirsw\OneDrive\Documents\vs code projects\chatbotstep\tests\reports\cypress\screenshots"
+Copy media folder from "C:\Users\sirsw\OneDrive\Documents\vs code projects\chatbotstep\cypress\videos" to "C:\Users\sirsw\OneDrive\Documents\vs code projects\chatbotstep\tests\reports\cypress\videos"
+Enhance report
+Create HTML report
+HTML report successfully created!
+C:\Users\sirsw\OneDrive\Documents\vs code projects\chatbotstep\tests\reports\cypress\index.html
+
+====================================================================================================
+
+  (Run Finished)
+
+
+       Spec                                              Tests  Passing  Failing  Pending  Skipped  
+  ┌────────────────────────────────────────────────────────────────────────────────────────────────┐
+  │ ✖  thoughts.cy.ts                           09:21       32       14       18        -        - │
+  └────────────────────────────────────────────────────────────────────────────────────────────────┘
+    ✖  1 of 1 failed (100%)                     09:21       32       14       18        -        -  
+

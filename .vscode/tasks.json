@@ -1,0 +1,51 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "dialogue-tests",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"run",
+				"test:run",
+				"--",
+				"tests/api/dialogue.test.ts"
+			],
+			"isBackground": false
+		},
+		{
+			"label": "build-app",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"run",
+				"build"
+			],
+			"isBackground": false
+		},
+		{
+			"label": "Run dialogue API test",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"run",
+				"test",
+				"--",
+				"tests/api/dialogue.test.ts"
+			],
+			"isBackground": false
+		},
+		{
+			"label": "dialogue-api-test",
+			"type": "shell",
+			"command": "npm run test -- tests/api/dialogue.test.ts",
+			"isBackground": false
+		},
+		{
+			"label": "verify-dialogue-api",
+			"type": "shell",
+			"command": "npm run test:run -- tests/api/dialogue.test.ts",
+			"isBackground": false
+		}
+	]
+}

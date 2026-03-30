@@ -1,0 +1,116 @@
+
+Warning: The allowCypressEnv configuration option is enabled. This allows any browser code to read values from Cypress.env(). This is insecure and will be removed in a future major version.
+
+1. Replace Cypress.env() calls with cy.env() (for sensitive values) or Cypress.expose() (for public configuration)
+2. Set allowCypressEnv: false in your Cypress configuration to disable Cypress.env()
+
+Learn more: https://on.cypress.io/cypress-env-migration
+
+Warning: We failed to trash the existing run results.
+
+This error will not affect or change the exit code.
+
+Error: Command failed: C:\Users\sirsw\AppData\Local\Cypress\Cache\15.13.0\Cypress\resources\app\node_modules\trash\lib\windows-trash.exe C:\Users\sirsw\OneDrive\Documents\vs code projects\chatbotstep\cypress\videos\thoughts.cy.ts.mp4
+
+    at genericNodeError (node:internal/errors:983:15)
+    at wrappedFn (node:internal/errors:537:14)
+    at ChildProcess.exithandler (node:child_process:417:12)
+    at ChildProcess.emit (node:events:519:28)
+    at maybeClose (node:internal/child_process:1101:16)
+    at ChildProcess._handle.onexit (node:internal/child_process:304:5)
+
+====================================================================================================
+
+  (Run Starting)
+
+  ┌────────────────────────────────────────────────────────────────────────────────────────────────┐
+  │ Cypress:        15.13.0                                                                        │
+  │ Browser:        Electron 138 (headless)                                                        │
+  │ Node Version:   v25.8.1 (C:\Program Files\nodejs\node.exe)                                     │
+  │ Specs:          1 found (thoughts.cy.ts)                                                       │
+  │ Searched:       C:\Users\sirsw\OneDrive\Documents\vs code projects\chatbotstep\tests\e2e\thoug │
+  │                 hts.cy.ts                                                                      │
+  └────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+Remove output folder C:\Users\sirsw\OneDrive\Documents\vs code projects\chatbotstep\tests\reports\cypress
+
+────────────────────────────────────────────────────────────────────────────────────────────────────
+                                                                                                    
+  Running:  thoughts.cy.ts                                                                  (1 of 1)
+
+
+  ChatBotStep — Thought Window UI
+    √ renders thought window when Thought tab is clicked
+    √ displays thought window header with character avatar
+    √ shows Start button when not thinking
+    √ shows empty state message before thoughts start
+    √ enables Start button click to initiate thought chain
+    √ displays Stop button while thinking
+    √ stops thought chain when Stop button clicked
+    √ shows progress counter during thought generation
+    1) displays thought messages as chat bubbles
+    √ Thought tab pulsing indicator visible while thinking
+
+
+  9 passing (14s)
+  1 failing
+
+  1) ChatBotStep — Thought Window UI
+       displays thought messages as chat bubbles:
+     AssertionError: Timed out retrying after 5000ms: Expected to find content: 'Thought 1' but never did.
+      at Context.eval (webpack://chatbotstep/./tests/e2e/thoughts.cy.ts:67:48)
+
+
+
+[mochawesome] Report JSON saved to C:\Users\sirsw\OneDrive\Documents\vs code projects\chatbotstep\tests\reports\cypress\.jsons\index_001.json
+
+
+  (Results)
+
+  ┌────────────────────────────────────────────────────────────────────────────────────────────────┐
+  │ Tests:        10                                                                               │
+  │ Passing:      9                                                                                │
+  │ Failing:      1                                                                                │
+  │ Pending:      0                                                                                │
+  │ Skipped:      0                                                                                │
+  │ Screenshots:  2                                                                                │
+  │ Video:        true                                                                             │
+  │ Duration:     13 seconds                                                                       │
+  │ Spec Ran:     thoughts.cy.ts                                                                   │
+  └────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+
+  (Screenshots)
+
+  -  C:\Users\sirsw\OneDrive\Documents\vs code projects\chatbotstep\cypress\screensho     (1280x720)
+     ts\thoughts.cy.ts\ChatBotStep — Thought Window UI -- displays thought messages a               
+     s chat bubbles (failed).png                                                                    
+  -  C:\Users\sirsw\OneDrive\Documents\vs code projects\chatbotstep\cypress\screensho     (1280x720)
+     ts\thoughts.cy.ts\ChatBotStep — Thought Window UI -- displays thought messages a               
+     s chat bubbles (failed) (attempt 2).png                                                        
+
+
+  (Video)
+
+  -  Video output: C:\Users\sirsw\OneDrive\Documents\vs code projects\chatbotstep\cypress\videos\thoughts.cy.ts.mp4
+
+Start generate report process
+Read and merge jsons from "C:\Users\sirsw\OneDrive\Documents\vs code projects\chatbotstep\tests\reports\cypress\.jsons"
+Copy media folder from "C:\Users\sirsw\OneDrive\Documents\vs code projects\chatbotstep\cypress\screenshots" to "C:\Users\sirsw\OneDrive\Documents\vs code projects\chatbotstep\tests\reports\cypress\screenshots"
+Copy media folder from "C:\Users\sirsw\OneDrive\Documents\vs code projects\chatbotstep\cypress\videos" to "C:\Users\sirsw\OneDrive\Documents\vs code projects\chatbotstep\tests\reports\cypress\videos"
+Enhance report
+Create HTML report
+HTML report successfully created!
+C:\Users\sirsw\OneDrive\Documents\vs code projects\chatbotstep\tests\reports\cypress\index.html
+
+====================================================================================================
+
+  (Run Finished)
+
+
+       Spec                                              Tests  Passing  Failing  Pending  Skipped  
+  ┌────────────────────────────────────────────────────────────────────────────────────────────────┐
+  │ ✖  thoughts.cy.ts                           00:13       10        9        1        -        - │
+  └────────────────────────────────────────────────────────────────────────────────────────────────┘
+    ✖  1 of 1 failed (100%)                     00:13       10        9        1        -        -  
+
