@@ -1,28 +1,36 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { streamChat, type ChatMessage, type StreamEvent } from '@/lib/openrouter'
 import {
-  getCharacterById,
-  buildThoughtChainSystemPrompt,
-  getRandomInitialThought,
   buildConversationFallbackLine,
   buildConversationOpeningPrompt,
   buildConversationReplyPrompt,
   buildConversationTurnSystemPrompt,
+  getCharacterById,
 } from '@/lib/characters'
 import type { CharacterDefinition } from '@/lib/characters/types'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 
-const THOUGHT_CHAIN_MAX = 50
-const THOUGHT_CHAIN_DELAY_MS = 300
-const DIALOGUE_MAX_TURNS = 12
+const DIALOGUE_MAX_TURNS = 50
 const DIALOGUE_DELAY_MS = 350
 const DIALOGUE_TURN_MAX_ATTEMPTS = 3
 const DIALOGUE_TURN_RETRY_DELAY_MS = 150
 
 async function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms))
+}
+
+function hasDuplicateCharacterIds(characters: CharacterDefinition[]) {
+  return new Set(characters.map((character) => character.id)).size !== characters.length
+}
+
+function getDialogueDelayMs() {
+  return process.env.NODE_ENV === 'test' ? 0 : DIALOGUE_DELAY_MS
+}
+
+function getRetryDelayMs() {
+  return process.env.NODE_ENV === 'test' ? 0 : DIALOGUE_TURN_RETRY_DELAY_MS
 }
 
 export async function POST(req: NextRequest) {
@@ -32,12 +40,12 @@ export async function POST(req: NextRequest) {
   }
 
   let body: {
-    messages?: unknown[]
-    characterId?: unknown
     speakerAId?: unknown
     speakerBId?: unknown
+    speakerCId?: unknown
     mode?: unknown
   }
+
   try {
     body = await req.json()
   } catch {
@@ -48,65 +56,59 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 })
   }
 
-  const mode =
-    body.mode === 'thought' ? 'thought' : body.mode === 'dialogue' ? 'dialogue' : 'chat'
-
-  if (mode === 'chat') {
-    if (!Array.isArray(body?.messages) || body.messages.length === 0) {
-      return NextResponse.json({ error: 'messages is required' }, { status: 400 })
-    }
+  if (body.mode && body.mode !== 'dialogue') {
+    return NextResponse.json({ error: 'Meet Realm only supports dialogue mode' }, { status: 400 })
   }
 
-  const character = getCharacterById(typeof body.characterId === 'string' ? body.characterId : undefined)
+  const speakerA = getCharacterById(typeof body.speakerAId === 'string' ? body.speakerAId : undefined)
+  const speakerB = getCharacterById(typeof body.speakerBId === 'string' ? body.speakerBId : undefined)
+  const speakerC = getCharacterById(typeof body.speakerCId === 'string' ? body.speakerCId : undefined)
 
-  if (mode === 'thought') {
-    return await handleThoughtChain(apiKey, character, req.signal)
-  }
+  const speakers = [speakerA, speakerB, speakerC]
 
-  if (mode === 'dialogue') {
-    const speakerA = getCharacterById(typeof body.speakerAId === 'string' ? body.speakerAId : undefined)
-    const speakerB = getCharacterById(typeof body.speakerBId === 'string' ? body.speakerBId : undefined)
-
-    if (speakerA.id === speakerB.id) {
-      return NextResponse.json({ error: 'Select two different characters' }, { status: 400 })
-    }
-
-    return await handleDialogue(apiKey, speakerA, speakerB, req.signal)
-  }
-
-  const messages: ChatMessage[] = (body.messages as Array<Record<string, unknown>>)
-    .filter(
-      (m) =>
-        m &&
-        (m.role === 'user' || m.role === 'assistant') &&
-        typeof m.content === 'string' &&
-        !m.synthetic,
-    )
-    .slice(-20)
-    .map((m) => ({
-      role: m.role as 'user' | 'assistant',
-      content: m.content as string,
-      ...(Array.isArray(m.reasoning_details) ? { reasoning_details: m.reasoning_details } : {}),
-    }))
-
-  if (messages.length === 0) {
-    return NextResponse.json({ error: 'No valid messages' }, { status: 400 })
+  if (hasDuplicateCharacterIds(speakers)) {
+    return NextResponse.json({ error: 'Select three different characters' }, { status: 400 })
   }
 
   if (process.env.MOCK_AI === '1') {
     const encoder = new TextEncoder()
-    const mockContent = `Mock response from ${character.name}.`
-    const mockStream = new ReadableStream({
+    const stream = new ReadableStream({
       start(controller) {
-        controller.enqueue(
-          encoder.encode(`data: ${JSON.stringify({ type: 'content', token: mockContent, content: mockContent })}\n\n`),
-        )
-        controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: 'done', content: mockContent })}\n\n`))
+        const events: StreamEvent[] = []
+
+        for (let turn = 0; turn < DIALOGUE_MAX_TURNS; turn += 1) {
+          const speaker = speakers[turn % speakers.length]
+          const turnNumber = turn + 1
+
+          events.push({
+            type: 'dialogue_turn_started',
+            turn: turnNumber,
+            speakerId: speaker.id,
+            speakerName: speaker.name,
+            speakerAvatar: speaker.avatar,
+          })
+
+          events.push({
+            type: 'dialogue_message',
+            turn: turnNumber,
+            speakerId: speaker.id,
+            speakerName: speaker.name,
+            speakerAvatar: speaker.avatar,
+            content: `${speaker.name} mock turn ${turnNumber}.`,
+          })
+        }
+
+        events.push({ type: 'dialogue_done', total: DIALOGUE_MAX_TURNS })
+
+        for (const event of events) {
+          controller.enqueue(encoder.encode(`data: ${JSON.stringify(event)}\n\n`))
+        }
+
         controller.close()
       },
     })
 
-    return new Response(mockStream, {
+    return new Response(stream, {
       headers: {
         'Content-Type': 'text/event-stream; charset=utf-8',
         'Cache-Control': 'no-cache, no-store, must-revalidate',
@@ -116,133 +118,12 @@ export async function POST(req: NextRequest) {
     })
   }
 
-  const encoder = new TextEncoder()
-
-  const stream = new ReadableStream({
-    async start(controller) {
-      const send = (event: StreamEvent) => {
-        if (req.signal.aborted) {
-          throw new DOMException('Aborted', 'AbortError')
-        }
-        const encoded = encoder.encode(`data: ${JSON.stringify(event)}\n\n`)
-        const desiredSize = controller.desiredSize ?? 1
-        if (desiredSize < 0) {
-          throw new Error('Stream backpressure exceeded')
-        }
-        controller.enqueue(encoded)
-      }
-
-      try {
-        await streamChat(apiKey, messages, character.systemPrompt, send, req.signal)
-      } catch (err) {
-        if (err instanceof Error && err.name !== 'AbortError') {
-          send({ type: 'error', message: err.message })
-        }
-      } finally {
-        if (!req.signal.aborted) {
-          controller.close()
-        }
-      }
-    },
-  })
-
-  return new Response(stream, {
-    headers: {
-      'Content-Type': 'text/event-stream; charset=utf-8',
-      'Cache-Control': 'no-cache, no-store, must-revalidate',
-      Connection: 'keep-alive',
-      'X-Accel-Buffering': 'no',
-    },
-  })
-}
-
-async function handleThoughtChain(apiKey: string, character: CharacterDefinition, signal: AbortSignal) {
-  const encoder = new TextEncoder()
-  const thoughtChainPrompt = buildThoughtChainSystemPrompt(character.name, character.traits)
-
-  const stream = new ReadableStream({
-    async start(controller) {
-      const send = (event: StreamEvent) => {
-        if (signal.aborted) {
-          throw new DOMException('Aborted', 'AbortError')
-        }
-        const encoded = encoder.encode(`data: ${JSON.stringify(event)}\n\n`)
-        controller.enqueue(encoded)
-      }
-
-      try {
-        let previousThought = getRandomInitialThought(character.name)
-
-        for (let i = 0; i < THOUGHT_CHAIN_MAX; i++) {
-          if (signal.aborted) break
-
-          // Send thought_started event to indicate beginning of thought
-          send({ type: 'thought_started' as const, number: i + 1 })
-
-          // Build messages for this thought iteration
-          const thoughtMessages: ChatMessage[] = [
-            {
-              role: 'assistant',
-              content: previousThought,
-            },
-          ]
-
-          let currentThought = ''
-
-          // Stream this thought
-          const collectThought = (event: StreamEvent) => {
-            if (event.type === 'content' && (event.token || event.content)) {
-              const chunk = event.token || event.content || ''
-              currentThought += chunk
-              send({ type: 'thought_chunk' as const, chunk, number: i + 1 })
-            }
-
-            if (event.type === 'done' && event.content && !currentThought.trim()) {
-              currentThought = event.content
-            }
-          }
-
-          await streamChat(apiKey, thoughtMessages, thoughtChainPrompt, collectThought, signal)
-
-          if (currentThought) {
-            previousThought = currentThought
-            send({ type: 'thought_done' as const, thought: currentThought, number: i + 1 })
-          }
-
-          // Delay before next thought to avoid rate limiting
-          if (i < THOUGHT_CHAIN_MAX - 1) {
-            await sleep(THOUGHT_CHAIN_DELAY_MS)
-          }
-        }
-
-        // Send completion event
-        send({ type: 'thought_sequence_done' as const, total: THOUGHT_CHAIN_MAX })
-      } catch (err) {
-        if (err instanceof Error && err.name !== 'AbortError') {
-          send({ type: 'error', message: err.message })
-        }
-      } finally {
-        if (!signal.aborted) {
-          controller.close()
-        }
-      }
-    },
-  })
-
-  return new Response(stream, {
-    headers: {
-      'Content-Type': 'text/event-stream; charset=utf-8',
-      'Cache-Control': 'no-cache, no-store, must-revalidate',
-      Connection: 'keep-alive',
-      'X-Accel-Buffering': 'no',
-    },
-  })
+  return handleDialogue(apiKey, speakers, req.signal)
 }
 
 async function handleDialogue(
   apiKey: string,
-  speakerA: CharacterDefinition,
-  speakerB: CharacterDefinition,
+  speakers: CharacterDefinition[],
   signal: AbortSignal,
 ) {
   const encoder = new TextEncoder()
@@ -253,18 +134,19 @@ async function handleDialogue(
         if (signal.aborted) {
           throw new DOMException('Aborted', 'AbortError')
         }
-        const encoded = encoder.encode(`data: ${JSON.stringify(event)}\n\n`)
-        controller.enqueue(encoded)
+        controller.enqueue(encoder.encode(`data: ${JSON.stringify(event)}\n\n`))
       }
 
       try {
         let previousLine = ''
+        const dialogueDelayMs = getDialogueDelayMs()
+        const retryDelayMs = getRetryDelayMs()
 
         for (let turn = 0; turn < DIALOGUE_MAX_TURNS; turn++) {
           if (signal.aborted) break
 
-          const speaker = turn % 2 === 0 ? speakerA : speakerB
-          const listener = turn % 2 === 0 ? speakerB : speakerA
+          const speaker = speakers[turn % speakers.length]
+          const listener = speakers[(turn + 1) % speakers.length]
 
           const turnPrompt =
             turn === 0
@@ -349,7 +231,7 @@ async function handleDialogue(
             }
 
             if (attempt < DIALOGUE_TURN_MAX_ATTEMPTS - 1) {
-              await sleep(DIALOGUE_TURN_RETRY_DELAY_MS)
+              await sleep(retryDelayMs)
             }
           }
 
@@ -370,7 +252,7 @@ async function handleDialogue(
           })
 
           if (turn < DIALOGUE_MAX_TURNS - 1) {
-            await sleep(DIALOGUE_DELAY_MS)
+            await sleep(dialogueDelayMs)
           }
         }
 

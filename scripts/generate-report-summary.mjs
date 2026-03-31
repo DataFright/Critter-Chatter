@@ -100,12 +100,22 @@ const healthAvgMs = load?.health?.latency?.average?.toFixed(2) ?? 'N/A'
 const healthP90 = load?.health?.latency?.p90 ?? 'N/A'
 const healthP99 = load?.health?.latency?.p99 ?? 'N/A'
 const healthErrors = load?.health?.errors ?? 0
-const chatRps = load?.chat?.requests?.average?.toFixed(2) ?? 'N/A'
-const chatAvgMs = load?.chat?.latency?.average?.toFixed(2) ?? 'N/A'
-const chatP90 = load?.chat?.latency?.p90 ?? 'N/A'
-const chatP99 = load?.chat?.latency?.p99 ?? 'N/A'
-const chatErrors = load?.chat?.errors ?? 0
-const totalLoadErrors = healthErrors + chatErrors
+const dialogue = load?.dialogue ?? load?.chat
+const dialogueRps = dialogue?.requests?.average?.toFixed(2) ?? 'N/A'
+const dialogueAvgMs = dialogue?.latency?.average?.toFixed(2) ?? 'N/A'
+const dialogueP90 = dialogue?.latency?.p90 ?? 'N/A'
+const dialogueP99 = dialogue?.latency?.p99 ?? 'N/A'
+const dialogueErrors = dialogue?.errors ?? 0
+const dialogueStress = load?.dialogueStress
+const dialogueStressRuns = dialogueStress?.runs ?? 0
+const dialogueStressCompletedRuns = dialogueStress?.completedRuns ?? 0
+const dialogueStressExpectedTurns = dialogueStress?.expectedTurns ?? 'N/A'
+const dialogueStressConcurrency = dialogueStress?.concurrency ?? 'N/A'
+const dialogueStressAvgMs = dialogueStress?.latency?.average?.toFixed(2) ?? 'N/A'
+const dialogueStressP90 = dialogueStress?.latency?.p90 ?? 'N/A'
+const dialogueStressTurnsAvg = dialogueStress?.turns?.average?.toFixed?.(1) ?? 'N/A'
+const dialogueStressErrors = dialogueStress?.errors ?? 0
+const totalLoadErrors = healthErrors + dialogueErrors + dialogueStressErrors
 
 const totalTests = vitestTotal + cypressTotal
 const totalPassed = vitestPassed + cypressPassed
@@ -126,8 +136,14 @@ function progressBar(passed, total, width = 24) {
 }
 
 function formatMs(ms) {
+  if (!Number.isFinite(ms)) return 'N/A'
   if (ms < 1000) return `${ms.toFixed(0)}ms`
   return `${(ms / 1000).toFixed(2)}s`
+}
+
+function statusByThreshold(value, threshold) {
+  if (!Number.isFinite(value)) return 'N/A'
+  return value < threshold ? 'Excellent' : 'Good'
 }
 
 const md = `# 🚀 Test Report Summary
@@ -188,15 +204,27 @@ const md = `# 🚀 Test Report Summary
 | **P99 Latency** | ${healthP99}ms | ${healthP99 < 500 ? 'Excellent' : 'Good'} |
 | **Errors** | ${healthErrors} | ${healthErrors === 0 ? '✅ Zero errors' : '❌ ' + healthErrors + ' errors'} |
 
-### Chat Endpoint Performance
+### Dialogue Endpoint Performance
 
 | Metric | Value | Status |
 |--------|-------|--------|
-| **Request Rate** | ${chatRps} req/s | ${chatErrors === 0 ? '✅' : '⚠️'} |
-| **Average Latency** | ${formatMs(parseFloat(chatAvgMs))} | ${parseFloat(chatAvgMs) < 500 ? 'Excellent' : 'Good'} |
-| **P90 Latency** | ${chatP90}ms | ${chatP90 < 1000 ? 'Excellent' : 'Good'} |
-| **P99 Latency** | ${chatP99}ms | ${chatP99 < 2000 ? 'Excellent' : 'Good'} |
-| **Errors** | ${chatErrors} | ${chatErrors === 0 ? '✅ Zero errors' : '❌ ' + chatErrors + ' errors'} |
+| **Request Rate** | ${dialogueRps} req/s | ${dialogueErrors === 0 ? '✅' : '⚠️'} |
+| **Average Latency** | ${formatMs(parseFloat(dialogueAvgMs))} | ${statusByThreshold(parseFloat(dialogueAvgMs), 500)} |
+| **P90 Latency** | ${dialogueP90}ms | ${statusByThreshold(Number(dialogueP90), 1000)} |
+| **P99 Latency** | ${dialogueP99}ms | ${statusByThreshold(Number(dialogueP99), 2000)} |
+| **Errors** | ${dialogueErrors} | ${dialogueErrors === 0 ? '✅ Zero errors' : '❌ ' + dialogueErrors + ' errors'} |
+
+### Dialogue Stress Test
+
+| Metric | Value | Status |
+|--------|-------|--------|
+| **Runs** | ${dialogueStressCompletedRuns}/${dialogueStressRuns} | ${dialogueStressErrors === 0 ? '✅' : '⚠️'} |
+| **Expected Turns** | ${dialogueStressExpectedTurns} | ${dialogueStressExpectedTurns === 50 ? '✅' : '⚠️'} |
+| **Concurrency** | ${dialogueStressConcurrency} | ${dialogueStressConcurrency === 'N/A' ? 'N/A' : 'Configured'} |
+| **Average Duration** | ${formatMs(parseFloat(dialogueStressAvgMs))} | ${statusByThreshold(parseFloat(dialogueStressAvgMs), 3000)} |
+| **P90 Duration** | ${Number.isFinite(Number(dialogueStressP90)) ? formatMs(Number(dialogueStressP90)) : 'N/A'} | ${statusByThreshold(Number(dialogueStressP90), 5000)} |
+| **Average Turns Observed** | ${dialogueStressTurnsAvg} | ${Number(dialogueStressTurnsAvg) === 50 ? 'Complete' : 'Incomplete'} |
+| **Errors** | ${dialogueStressErrors} | ${dialogueStressErrors === 0 ? '✅ Zero errors' : '❌ ' + dialogueStressErrors + ' errors'} |
 
 **Total Load Errors:** ${totalLoadErrors === 0 ? '✅ ' + totalLoadErrors : '❌ ' + totalLoadErrors}
 
@@ -288,7 +316,15 @@ const summaryJson = {
   vitest: { tests: vitestTotal, passed: vitestPassed, failed: vitestFailed, testDetails: vitestTests },
   cypress: { tests: cypressTotal, passed: cypressPassed, failed: cypressFailed, testDetails: cypressTests },
   coverage: { statements: avgStatements === 'N/A' ? 'N/A' : avgStatements + '%', branches: avgBranches === 'N/A' ? 'N/A' : avgBranches + '%', functions: avgFunctions === 'N/A' ? 'N/A' : avgFunctions + '%', lines: avgLines === 'N/A' ? 'N/A' : avgLines + '%', files: coverageData },
-  load: { healthErrors, chatErrors, totalLoadErrors },
+  load: {
+    healthErrors,
+    dialogueErrors,
+    dialogueStressErrors,
+    dialogueStressRuns,
+    dialogueStressCompletedRuns,
+    dialogueStressExpectedTurns,
+    totalLoadErrors,
+  },
 }
 
 fs.mkdirSync(REPORTS, { recursive: true })

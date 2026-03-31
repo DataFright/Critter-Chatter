@@ -1,6 +1,6 @@
 # 🚀 Test Report Summary
 
-**Generated:** 2026-03-30T03:57:40.361Z  
+**Generated:** 2026-03-31T19:29:02.948Z  
 **Status:** **PASS | all checks green**  
 **Overall Pass Rate:** **100%**
 
@@ -10,8 +10,8 @@
 
 | Metric | Value | Status |
 |--------|-------|--------|
-| **Total Tests** | 160 | ✅ |
-| **Passed** | 160 | - |
+| **Total Tests** | 24 | ✅ |
+| **Passed** | 24 | - |
 | **Failed** | 0 | - |
 | **Pass Rate** | **100%** | Excellent |
 | **Progress** | ████████████████████████ 100% | - |
@@ -24,8 +24,8 @@
 
 | Metric | Value |
 |--------|-------|
-| **Tests** | 50 |
-| **Passed** | 50 ✅ |
+| **Tests** | 12 |
+| **Passed** | 12 ✅ |
 | **Failed** | 0  |
 | **Pass Rate** | **100%** |
 | **Coverage** | ████████████████████████ 100% |
@@ -34,12 +34,12 @@
 
 | Metric | Value |
 |--------|-------|
-| **Tests** | 110 |
-| **Passed** | 110 ✅ |
+| **Tests** | 12 |
+| **Passed** | 12 ✅ |
 | **Failed** | 0  |
 | **Pending** | 0 |
 | **Pass Rate** | **100%** |
-| **Duration** | 105.5s |
+| **Duration** | 5.6s |
 | **Coverage** | ████████████████████████ 100% |
 
 ---
@@ -50,20 +50,32 @@
 
 | Metric | Value | Status |
 |--------|-------|--------|
-| **Request Rate** | 1579.4 req/s | ✅ |
+| **Request Rate** | 1631.4 req/s | ✅ |
 | **Average Latency** | 6ms | Excellent |
-| **P90 Latency** | 8ms | Excellent |
+| **P90 Latency** | 7ms | Excellent |
 | **P99 Latency** | 37ms | Excellent |
 | **Errors** | 0 | ✅ Zero errors |
 
-### Chat Endpoint Performance
+### Dialogue Endpoint Performance
 
 | Metric | Value | Status |
 |--------|-------|--------|
-| **Request Rate** | 0.20 req/s | ✅ |
-| **Average Latency** | 4.27s | Good |
-| **P90 Latency** | 4508ms | Good |
-| **P99 Latency** | 4508ms | Good |
+| **Request Rate** | 144.42 req/s | ✅ |
+| **Average Latency** | 7ms | Excellent |
+| **P90 Latency** | 35.74109999999928ms | Excellent |
+| **P99 Latency** | 35.74109999999928ms | Excellent |
+| **Errors** | 0 | ✅ Zero errors |
+
+### Dialogue Stress Test
+
+| Metric | Value | Status |
+|--------|-------|--------|
+| **Runs** | 6/6 | ✅ |
+| **Expected Turns** | 50 | ✅ |
+| **Concurrency** | 3 | Configured |
+| **Average Duration** | 4ms | Excellent |
+| **P90 Duration** | 6ms | Excellent |
+| **Average Turns Observed** | 50.0 | Complete |
 | **Errors** | 0 | ✅ Zero errors |
 
 **Total Load Errors:** ✅ 0
@@ -76,78 +88,35 @@
 
 | Test Name | File | Status |
 | --- | --- | --- |
-| rejects missing messages | chatbotstep/tests/api/chat.test.ts | ✅ |
-| rejects empty messages array | chatbotstep/tests/api/chat.test.ts | ✅ |
-| rejects invalid JSON | chatbotstep/tests/api/chat.test.ts | ✅ |
-| streams SSE with content-type text/event-stream | chatbotstep/tests/api/chat.test.ts | ✅ |
-| SSE stream contains content and done events | chatbotstep/tests/api/chat.test.ts | ✅ |
-| strips synthetic messages before sending | chatbotstep/tests/api/chat.test.ts | ✅ |
-| returns 400 when all messages are synthetic | chatbotstep/tests/api/chat.test.ts | ✅ |
-| uses default Joe prompt when characterId is omitted | chatbotstep/tests/api/chat.test.ts | ✅ |
-| falls back to Joe prompt for unknown characterId | chatbotstep/tests/api/chat.test.ts | ✅ |
-| uses Volt prompt for explicit volt characterId | chatbotstep/tests/api/chat.test.ts | ✅ |
 | starts dialogue mode with SSE response | chatbotstep/tests/api/dialogue.test.ts | ✅ |
-| rejects identical dialogue speakers | chatbotstep/tests/api/dialogue.test.ts | ✅ |
-| rejects dialogue mode when speakers are omitted (defaults to identical) | chatbotstep/tests/api/dialogue.test.ts | ✅ |
+| rejects duplicate dialogue speakers | chatbotstep/tests/api/dialogue.test.ts | ✅ |
+| rejects dialogue mode when speakers are omitted (defaults to duplicates) | chatbotstep/tests/api/dialogue.test.ts | ✅ |
+| rejects non-dialogue modes for Meet Realm-only API | chatbotstep/tests/api/dialogue.test.ts | ✅ |
 | makes the first selected speaker go first | chatbotstep/tests/api/dialogue.test.ts | ✅ |
-| alternates speakers and feeds the previous line into the next turn | chatbotstep/tests/api/dialogue.test.ts | ✅ |
+| rotates speakers and feeds the previous line into the next turn | chatbotstep/tests/api/dialogue.test.ts | ✅ |
+| streams 50 turns before completion | chatbotstep/tests/api/dialogue.test.ts | ✅ |
 | streams a dialogue completion event | chatbotstep/tests/api/dialogue.test.ts | ✅ |
 | emits error events when dialogue streaming fails | chatbotstep/tests/api/dialogue.test.ts | ✅ |
 | uses character fallback line when a turn yields no dialogue content | chatbotstep/tests/api/dialogue.test.ts | ✅ |
-| rejects null body | chatbotstep/tests/api/error-handling.test.ts | ✅ |
-| rejects body without messages field | chatbotstep/tests/api/error-handling.test.ts | ✅ |
-| rejects messages as non-array | chatbotstep/tests/api/error-handling.test.ts | ✅ |
-| rejects all messages with invalid role | chatbotstep/tests/api/error-handling.test.ts | ✅ |
-| rejects messages with non-string content | chatbotstep/tests/api/error-handling.test.ts | ✅ |
-| strips messages exceeding limit and keeps last 20 | chatbotstep/tests/api/error-handling.test.ts | ✅ |
-| sends error event when streamChat throws | chatbotstep/tests/api/error-handling.test.ts | ✅ |
-| sends error event with unknown error | chatbotstep/tests/api/error-handling.test.ts | ✅ |
-| filters out messages with synthetic=true | chatbotstep/tests/api/error-handling.test.ts | ✅ |
-| passes reasoning_details if present | chatbotstep/tests/api/error-handling.test.ts | ✅ |
-| returns 500 when API key is missing | chatbotstep/tests/api/error-handling.test.ts | ✅ |
-| sets correct SSE headers | chatbotstep/tests/api/error-handling.test.ts | ✅ |
-| uses Joe prompt for explicit joe characterId | chatbotstep/tests/api/error-handling.test.ts | ✅ |
-| uses Jinx prompt for explicit jinx characterId | chatbotstep/tests/api/error-handling.test.ts | ✅ |
-| uses Volt prompt for explicit volt characterId | chatbotstep/tests/api/error-handling.test.ts | ✅ |
-| returns ok: true | chatbotstep/tests/api/health.test.ts | ✅ |
-| triggers thought chain when mode: "thought" | chatbotstep/tests/api/thought-chain.test.ts | ✅ |
-| returns correct SSE headers for thought stream | chatbotstep/tests/api/thought-chain.test.ts | ✅ |
-| accepts mode: "thought" without messages | chatbotstep/tests/api/thought-chain.test.ts | ✅ |
-| applies Joe character prompt for thought mode | chatbotstep/tests/api/thought-chain.test.ts | ✅ |
-| applies Jinx character prompt for thought mode | chatbotstep/tests/api/thought-chain.test.ts | ✅ |
-| applies Volt character prompt for thought mode | chatbotstep/tests/api/thought-chain.test.ts | ✅ |
-| ignores messages field when mode: "thought" | chatbotstep/tests/api/thought-chain.test.ts | ✅ |
-| handles errors during thought streaming | chatbotstep/tests/api/thought-chain.test.ts | ✅ |
-| distinguishes thought mode from chat mode | chatbotstep/tests/api/thought-chain.test.ts | ✅ |
-| continues count when thought generates no response | chatbotstep/tests/api/thought-chain.test.ts | ✅ |
-| increments sequence even with partial thoughts | chatbotstep/tests/api/thought-chain.test.ts | ✅ |
-| continues generating after API error mid-sequence | chatbotstep/tests/api/thought-chain.test.ts | ✅ |
-| handles undefined character gracefully | chatbotstep/tests/api/thought-chain.test.ts | ✅ |
-| handles malformed characterId | chatbotstep/tests/api/thought-chain.test.ts | ✅ |
-| handles stream errors without crashing | chatbotstep/tests/api/thought-chain.test.ts | ✅ |
-| properly closes stream on abort signal | chatbotstep/tests/api/thought-chain.test.ts | ✅ |
+| uses final done content when no incremental dialogue chunks are streamed | chatbotstep/tests/api/dialogue.test.ts | ✅ |
+| retries an empty Jinx turn and uses the later non-empty response | chatbotstep/tests/api/dialogue.test.ts | ✅ |
 
 ### E2E Tests  
 
 | Test Suite | Test Name | Status | Duration |
 | --- | --- | --- | --- |
-| tests/e2e/chat.cy.ts | ChatBotStep — UI renders chat inside a boxed shell | ✅ | 179ms |
-| tests/e2e/chat.cy.ts | ChatBotStep — UI renders the header with Joe | ✅ | 71ms |
-| tests/e2e/chat.cy.ts | ChatBotStep — UI shows character selector defaulting to Joe | ✅ | 53ms |
-| tests/e2e/chat.cy.ts | ChatBotStep — UI shows both character options | ✅ | 55ms |
-| tests/e2e/chat.cy.ts | ChatBotStep — UI switches to Volt and updates header and starter text | ✅ | 204ms |
-| tests/e2e/chat.cy.ts | ChatBotStep — UI persists selected character across reload | ✅ | 270ms |
-| tests/e2e/chat.cy.ts | ChatBotStep — UI sends selected characterId in chat request payload | ✅ | 1225ms |
-| tests/e2e/chat.cy.ts | ChatBotStep — UI shows the starter message | ✅ | 79ms |
-| tests/e2e/chat.cy.ts | ChatBotStep — UI has a message input and send button | ✅ | 56ms |
-| tests/e2e/chat.cy.ts | ChatBotStep — UI send button is disabled when input is empty | ✅ | 52ms |
-| tests/e2e/chat.cy.ts | ChatBotStep — UI send button enables when text is entered | ✅ | 315ms |
-| tests/e2e/chat.cy.ts | ChatBotStep — UI clears input after sending | ✅ | 1015ms |
-| tests/e2e/chat.cy.ts | ChatBotStep — UI shows user message in chat after sending | ✅ | 1183ms |
-| tests/e2e/chat.cy.ts | ChatBotStep — UI shows AI response after sending | ✅ | 970ms |
-| tests/e2e/chat.cy.ts | ChatBotStep — UI sends message on Enter key | ✅ | 960ms |
-
-*... and 95 more tests*
+| tests/e2e/meet-realms.cy.ts | ChatBotStep — Meet Realm Shell renders the Meet Realm heading and panel | ✅ | 173ms |
+| tests/e2e/meet-realms.cy.ts | ChatBotStep — Meet Realm Shell does not show add-realm controls anymore | ✅ | 51ms |
+| tests/e2e/meet-realms.cy.ts | ChatBotStep — Meet Realm Shell keeps a single conversation surface visible | ✅ | 44ms |
+| tests/e2e/meet-realms.cy.ts | ChatBotStep — Meet Realm Shell shows larger layout width and height characteristics | ✅ | 48ms |
+| tests/e2e/meet-realms.cy.ts | ChatBotStep — Meet Realm Shell dialogue still runs on the single realm | ✅ | 430ms |
+| tests/e2e/conversation-realm.cy.ts | ChatBotStep — Meet Realm renders Meet Realm controls and default order text | ✅ | 306ms |
+| tests/e2e/conversation-realm.cy.ts | ChatBotStep — Meet Realm blocks starting when any selected speakers are identical | ✅ | 335ms |
+| tests/e2e/conversation-realm.cy.ts | ChatBotStep — Meet Realm starts dialogue mode and sends speaker ids in payload | ✅ | 576ms |
+| tests/e2e/conversation-realm.cy.ts | ChatBotStep — Meet Realm renders alternating streamed conversation messages | ✅ | 175ms |
+| tests/e2e/conversation-realm.cy.ts | ChatBotStep — Meet Realm switches to Stop while pending and back to Start when stopped | ✅ | 222ms |
+| tests/e2e/conversation-realm.cy.ts | ChatBotStep — Meet Realm shows real dialogue content and does not render fallback try-again lines | ✅ | 143ms |
+| tests/e2e/conversation-realm.cy.ts | ChatBotStep — Meet Realm renders Jinx, Mabel, and Volt dialogue without fallback copy | ✅ | 592ms |
 
 ---
 
@@ -157,30 +126,34 @@
 
 | Metric | Coverage | Status |
 |--------|----------|--------|
-| **Statements** | **76.6%** | ✅ |
-| **Branches** | **61.0%** | ⚠️ |
-| **Functions** | **61.1%** | ⚠️ |
-| **Lines** | **76.6%** | ✅ |
+| **Statements** | **93.6%** | ✅ |
+| **Branches** | **69.0%** | ⚠️ |
+| **Functions** | **87.5%** | ✅ |
+| **Lines** | **93.6%** | ✅ |
 
 **File Coverage Breakdown:**
 
 | File | Statements | Branches | Functions | Lines |
 | --- | --- | --- | --- | --- |
-| route.ts | 79.5% | 79.3% | 83.3% | 79.5% |
+| route.ts | 82.4% | 76.1% | 87.5% | 82.4% |
 | route.ts | 100.0% | 100.0% | 100.0% | 100.0% |
-| models.ts | 100.0% | N/A | N/A | 100.0% |
-| openrouter.ts | 3.6% | 3.8% | 0.0% | 3.6% |
-| system-prompt.ts | 100.0% | N/A | N/A | 100.0% |
+| conversation.ts | 100.0% | 50.0% | 100.0% | 100.0% |
+| index.ts | 60.0% | 50.0% | 50.0% | 60.0% |
+| jinx.ts | 100.0% | N/A | N/A | 100.0% |
+| joe.ts | 100.0% | N/A | N/A | 100.0% |
+| mabel.ts | 100.0% | N/A | N/A | 100.0% |
+| prompt.ts | 100.0% | N/A | 100.0% | 100.0% |
+| volt.ts | 100.0% | N/A | N/A | 100.0% |
 
 ---
 
 
 ### ✅ All Tests Passing!
 
-Excellent work! All 160 tests are passing with **100%** pass rate.
+Excellent work! All 24 tests are passing with **100%** pass rate.
 
-- Unit/API tests: 50/50 passing
-- E2E tests: 110/110 passing  
+- Unit/API tests: 12/12 passing
+- E2E tests: 12/12 passing  
 - Load errors: 0 total
   
 
@@ -206,4 +179,4 @@ Excellent work! All 160 tests are passing with **100%** pass rate.
 
 ---
 
-*Report generated on 3/29/2026, 10:57:40 PM*
+*Report generated on 3/31/2026, 2:29:02 PM*

@@ -1,4 +1,4 @@
-describe('ChatBotStep — Meet Realm Management', () => {
+describe('ChatBotStep — Meet Realm Shell', () => {
   function makeDialogueSse() {
     return [
       `data: ${JSON.stringify({ type: 'dialogue_turn_started', turn: 1, speakerId: 'joe', speakerName: 'Joe', speakerAvatar: '🙂' })}\n\n`,
@@ -7,7 +7,10 @@ describe('ChatBotStep — Meet Realm Management', () => {
       `data: ${JSON.stringify({ type: 'dialogue_turn_started', turn: 2, speakerId: 'jinx', speakerName: 'Chaos Jinx', speakerAvatar: '🐒' })}\n\n`,
       `data: ${JSON.stringify({ type: 'dialogue_chunk', turn: 2, speakerId: 'jinx', speakerName: 'Chaos Jinx', speakerAvatar: '🐒', chunk: 'Jinx replies', content: 'Jinx replies' })}\n\n`,
       `data: ${JSON.stringify({ type: 'dialogue_message', turn: 2, speakerId: 'jinx', speakerName: 'Chaos Jinx', speakerAvatar: '🐒', content: 'Jinx replies' })}\n\n`,
-      `data: ${JSON.stringify({ type: 'dialogue_done', total: 2 })}\n\n`,
+      `data: ${JSON.stringify({ type: 'dialogue_turn_started', turn: 3, speakerId: 'volt', speakerName: 'Volt Fox', speakerAvatar: '🦊' })}\n\n`,
+      `data: ${JSON.stringify({ type: 'dialogue_chunk', turn: 3, speakerId: 'volt', speakerName: 'Volt Fox', speakerAvatar: '🦊', chunk: 'Volt jumps in', content: 'Volt jumps in' })}\n\n`,
+      `data: ${JSON.stringify({ type: 'dialogue_message', turn: 3, speakerId: 'volt', speakerName: 'Volt Fox', speakerAvatar: '🦊', content: 'Volt jumps in' })}\n\n`,
+      `data: ${JSON.stringify({ type: 'dialogue_done', total: 50 })}\n\n`,
     ].join('')
   }
 
@@ -25,95 +28,41 @@ describe('ChatBotStep — Meet Realm Management', () => {
     cy.get('[data-testid="conversation-realm"]').should('be.visible')
   })
 
-  it('renders Meet Realm tab by default', () => {
+  it('renders the Meet Realm heading and panel', () => {
     cy.contains('Meet Realm').should('be.visible')
-    cy.get('[data-testid="add-meet-realm"]').should('be.visible')
-  })
-
-  it('adds a second Meet Realm and switches to it', () => {
-    cy.get('[data-testid="add-meet-realm"]').click()
-    cy.contains('Meet Realm 2').should('be.visible')
     cy.get('[data-testid="conversation-realm"]').should('be.visible')
   })
 
-  it('adds up to 3 Meet Realms (max limit)', () => {
-    cy.get('[data-testid="add-meet-realm"]').click()
-    cy.get('[data-testid="add-meet-realm"]').click()
-    cy.contains('Meet Realm 2').should('be.visible')
-    cy.contains('Meet Realm 3').should('be.visible')
+  it('does not show add-realm controls anymore', () => {
+    cy.get('[data-testid="add-meet-realm"]').should('not.exist')
+    cy.get('[data-testid^="meet-realm-tab-"]').should('not.exist')
   })
 
-  it('disables add button at 3 Meet Realms', () => {
-    cy.get('[data-testid="add-meet-realm"]').click()
-    cy.get('[data-testid="add-meet-realm"]').click()
-    cy.get('[data-testid="add-meet-realm"]').should('be.disabled')
+  it('keeps a single conversation surface visible', () => {
+    cy.get('[data-testid="conversation-realm"]').should('have.length', 1)
   })
 
-  it('switches back to Meet Realm 1 from Meet Realm 2', () => {
-    cy.get('[data-testid="add-meet-realm"]').click()
-    cy.get('[data-testid="meet-realm-tab-1"]').click()
-    cy.contains('Meet Realm').should('be.visible')
-  })
-
-  it('Meet Realm 2 has its own independent speaker selection', () => {
-    // Change speakers in Meet Realm 1
-    cy.get('[data-testid="conversation-realm"]').first().within(() => {
-      cy.get('select[aria-label="Conversation first speaker"]').select('volt')
-    })
-
-    cy.get('[data-testid="add-meet-realm"]').click()
-
-    // Meet Realm 2 should have fresh default speakers
-    // The visible realm (Meet Realm 2) is the active one
-    cy.get('[data-testid="meet-realm-tab-2"]').should('have.class', 'text-white')
-    cy.get('[data-testid="conversation-realm"]').last().within(() => {
-      cy.get('select[aria-label="Conversation first speaker"]').should('have.value', 'joe')
+  it('shows larger layout width and height characteristics', () => {
+    cy.get('[data-testid="conversation-realm"]').should(($panel) => {
+      const rect = $panel[0].getBoundingClientRect()
+      expect(rect.width).to.be.greaterThan(700)
+      expect(rect.height).to.be.greaterThan(700)
     })
   })
 
-  it('each Meet Realm shows its own name in the header', () => {
-    cy.get('[data-testid="conversation-realm"]').contains('Meet Realm').should('be.visible')
-
-    cy.get('[data-testid="add-meet-realm"]').click()
-    cy.get('[data-testid="conversation-realm"]').contains('Meet Realm 2').should('be.visible')
-  })
-
-  it('dialogue runs correctly in Meet Realm 1 after switching and back', () => {
-    // Start a dialogue in Meet Realm 1
-    cy.get('[data-testid="conversation-realm"]').first().within(() => {
+  it('dialogue still runs on the single realm', () => {
+    cy.get('[data-testid="conversation-realm"]').within(() => {
       cy.get('select[aria-label="Conversation second speaker"]').select('jinx')
+      cy.get('select[aria-label="Conversation third speaker"]').select('volt')
       cy.contains('▶ Start').click()
     })
     cy.wait('@dialogue')
 
-    // Add Realm 2 and switch to it
-    cy.get('[data-testid="add-meet-realm"]').click()
-    cy.get('[data-testid="conversation-realm"]').last().within(() => {
-      cy.get('[data-testid="conversation-message"]').should('have.length', 0)
+    cy.get('[data-testid="conversation-realm"]').within(() => {
+      cy.get('[data-testid="conversation-message"]').should('have.length', 3)
+      cy.contains('Joe opens').should('be.visible')
+      cy.contains('Jinx replies').should('be.visible')
+      cy.contains('Volt jumps in').should('be.visible')
     })
-
-    // Switch back to Realm 1 — messages still there
-    cy.get('[data-testid="meet-realm-tab-1"]').click()
-    cy.get('[data-testid="conversation-realm"]').first().within(() => {
-      cy.get('[data-testid="conversation-message"]').should('have.length.at.least', 1)
-    })
-  })
-
-  it('active Meet Realm tab has selected styling', () => {
-    cy.get('[data-testid="meet-realm-tab-1"]').should('have.class', 'text-white')
-  })
-
-  it('Meet Realm header label updates in each tab', () => {
-    cy.get('[data-testid="add-meet-realm"]').click()
-    cy.get('[data-testid="add-meet-realm"]').click()
-
-    cy.get('[data-testid="meet-realm-tab-1"]').click()
-    cy.get('[data-testid="conversation-realm"]').contains('Meet Realm').should('be.visible')
-
-    cy.get('[data-testid="meet-realm-tab-2"]').click()
-    cy.get('[data-testid="conversation-realm"]').contains('Meet Realm 2').should('be.visible')
-
-    cy.get('[data-testid="meet-realm-tab-3"]').click()
-    cy.get('[data-testid="conversation-realm"]').contains('Meet Realm 3').should('be.visible')
   })
 })

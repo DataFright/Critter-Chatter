@@ -23,7 +23,6 @@ export function isCharacterId(id: string | undefined | null): boolean {
   return ALL_CHARACTERS.some((character) => character.id === id)
 }
 
-export { buildThoughtChainSystemPrompt, getRandomInitialThought } from './thoughts'
 export {
   buildConversationFallbackLine,
   buildConversationOpeningPrompt,

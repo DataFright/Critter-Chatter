@@ -1,998 +1,182 @@
 {
-  "timestamp": "2026-03-30T03:57:40.377Z",
+  "timestamp": "2026-03-31T19:29:02.963Z",
   "status": "PASS",
   "totals": {
-    "tests": 160,
-    "passed": 160,
+    "tests": 24,
+    "passed": 24,
     "failed": 0,
     "passRate": "100%"
   },
   "vitest": {
-    "tests": 50,
-    "passed": 50,
+    "tests": 12,
+    "passed": 12,
     "failed": 0,
     "testDetails": [
       {
-        "name": "rejects missing messages",
-        "status": "passed",
-        "duration": 6.9090000000001055,
-        "file": "chatbotstep/tests/api/chat.test.ts"
-      },
-      {
-        "name": "rejects empty messages array",
-        "status": "passed",
-        "duration": 0.756900000000087,
-        "file": "chatbotstep/tests/api/chat.test.ts"
-      },
-      {
-        "name": "rejects invalid JSON",
-        "status": "passed",
-        "duration": 0.6701000000000477,
-        "file": "chatbotstep/tests/api/chat.test.ts"
-      },
-      {
-        "name": "streams SSE with content-type text/event-stream",
-        "status": "passed",
-        "duration": 1.5938999999998487,
-        "file": "chatbotstep/tests/api/chat.test.ts"
-      },
-      {
-        "name": "SSE stream contains content and done events",
-        "status": "passed",
-        "duration": 1.3798999999999069,
-        "file": "chatbotstep/tests/api/chat.test.ts"
-      },
-      {
-        "name": "strips synthetic messages before sending",
-        "status": "passed",
-        "duration": 0.6388999999999214,
-        "file": "chatbotstep/tests/api/chat.test.ts"
-      },
-      {
-        "name": "returns 400 when all messages are synthetic",
-        "status": "passed",
-        "duration": 0.5748999999998432,
-        "file": "chatbotstep/tests/api/chat.test.ts"
-      },
-      {
-        "name": "uses default Joe prompt when characterId is omitted",
-        "status": "passed",
-        "duration": 0.7216000000000804,
-        "file": "chatbotstep/tests/api/chat.test.ts"
-      },
-      {
-        "name": "falls back to Joe prompt for unknown characterId",
-        "status": "passed",
-        "duration": 0.6530999999999949,
-        "file": "chatbotstep/tests/api/chat.test.ts"
-      },
-      {
-        "name": "uses Volt prompt for explicit volt characterId",
-        "status": "passed",
-        "duration": 0.6989999999998417,
-        "file": "chatbotstep/tests/api/chat.test.ts"
-      },
-      {
         "name": "starts dialogue mode with SSE response",
         "status": "passed",
-        "duration": 7.510700000000043,
+        "duration": 7.504100000000108,
         "file": "chatbotstep/tests/api/dialogue.test.ts"
       },
       {
-        "name": "rejects identical dialogue speakers",
+        "name": "rejects duplicate dialogue speakers",
         "status": "passed",
-        "duration": 1.2048999999999523,
+        "duration": 1.4623999999998887,
         "file": "chatbotstep/tests/api/dialogue.test.ts"
       },
       {
-        "name": "rejects dialogue mode when speakers are omitted (defaults to identical)",
+        "name": "rejects dialogue mode when speakers are omitted (defaults to duplicates)",
         "status": "passed",
-        "duration": 0.803899999999885,
+        "duration": 0.723700000000008,
+        "file": "chatbotstep/tests/api/dialogue.test.ts"
+      },
+      {
+        "name": "rejects non-dialogue modes for Meet Realm-only API",
+        "status": "passed",
+        "duration": 0.6390999999998712,
         "file": "chatbotstep/tests/api/dialogue.test.ts"
       },
       {
         "name": "makes the first selected speaker go first",
         "status": "passed",
-        "duration": 3923.5678,
+        "duration": 478.93179999999984,
         "file": "chatbotstep/tests/api/dialogue.test.ts"
       },
       {
-        "name": "alternates speakers and feeds the previous line into the next turn",
+        "name": "rotates speakers and feeds the previous line into the next turn",
         "status": "passed",
-        "duration": 3916.7554999999993,
+        "duration": 500.4276,
+        "file": "chatbotstep/tests/api/dialogue.test.ts"
+      },
+      {
+        "name": "streams 50 turns before completion",
+        "status": "passed",
+        "duration": 483.81809999999996,
         "file": "chatbotstep/tests/api/dialogue.test.ts"
       },
       {
         "name": "streams a dialogue completion event",
         "status": "passed",
-        "duration": 3932.044,
+        "duration": 466.8502000000003,
         "file": "chatbotstep/tests/api/dialogue.test.ts"
       },
       {
         "name": "emits error events when dialogue streaming fails",
         "status": "passed",
-        "duration": 1.2564999999995052,
+        "duration": 32.20869999999968,
         "file": "chatbotstep/tests/api/dialogue.test.ts"
       },
       {
         "name": "uses character fallback line when a turn yields no dialogue content",
         "status": "passed",
-        "duration": 3915.4178999999986,
+        "duration": 1468.1563,
         "file": "chatbotstep/tests/api/dialogue.test.ts"
       },
       {
-        "name": "rejects null body",
+        "name": "uses final done content when no incremental dialogue chunks are streamed",
         "status": "passed",
-        "duration": 6.609299999999848,
-        "file": "chatbotstep/tests/api/error-handling.test.ts"
+        "duration": 464.8642,
+        "file": "chatbotstep/tests/api/dialogue.test.ts"
       },
       {
-        "name": "rejects body without messages field",
+        "name": "retries an empty Jinx turn and uses the later non-empty response",
         "status": "passed",
-        "duration": 0.764699999999948,
-        "file": "chatbotstep/tests/api/error-handling.test.ts"
-      },
-      {
-        "name": "rejects messages as non-array",
-        "status": "passed",
-        "duration": 0.6729000000000269,
-        "file": "chatbotstep/tests/api/error-handling.test.ts"
-      },
-      {
-        "name": "rejects all messages with invalid role",
-        "status": "passed",
-        "duration": 0.6497999999999138,
-        "file": "chatbotstep/tests/api/error-handling.test.ts"
-      },
-      {
-        "name": "rejects messages with non-string content",
-        "status": "passed",
-        "duration": 0.6844999999998436,
-        "file": "chatbotstep/tests/api/error-handling.test.ts"
-      },
-      {
-        "name": "strips messages exceeding limit and keeps last 20",
-        "status": "passed",
-        "duration": 1.9922999999998865,
-        "file": "chatbotstep/tests/api/error-handling.test.ts"
-      },
-      {
-        "name": "sends error event when streamChat throws",
-        "status": "passed",
-        "duration": 1.156400000000076,
-        "file": "chatbotstep/tests/api/error-handling.test.ts"
-      },
-      {
-        "name": "sends error event with unknown error",
-        "status": "passed",
-        "duration": 0.6610000000000582,
-        "file": "chatbotstep/tests/api/error-handling.test.ts"
-      },
-      {
-        "name": "filters out messages with synthetic=true",
-        "status": "passed",
-        "duration": 0.9386999999999261,
-        "file": "chatbotstep/tests/api/error-handling.test.ts"
-      },
-      {
-        "name": "passes reasoning_details if present",
-        "status": "passed",
-        "duration": 1.2324000000000979,
-        "file": "chatbotstep/tests/api/error-handling.test.ts"
-      },
-      {
-        "name": "returns 500 when API key is missing",
-        "status": "passed",
-        "duration": 0.5906999999999698,
-        "file": "chatbotstep/tests/api/error-handling.test.ts"
-      },
-      {
-        "name": "sets correct SSE headers",
-        "status": "passed",
-        "duration": 0.5216000000000349,
-        "file": "chatbotstep/tests/api/error-handling.test.ts"
-      },
-      {
-        "name": "uses Joe prompt for explicit joe characterId",
-        "status": "passed",
-        "duration": 0.6851999999998952,
-        "file": "chatbotstep/tests/api/error-handling.test.ts"
-      },
-      {
-        "name": "uses Jinx prompt for explicit jinx characterId",
-        "status": "passed",
-        "duration": 0.4311999999999898,
-        "file": "chatbotstep/tests/api/error-handling.test.ts"
-      },
-      {
-        "name": "uses Volt prompt for explicit volt characterId",
-        "status": "passed",
-        "duration": 0.4352000000001226,
-        "file": "chatbotstep/tests/api/error-handling.test.ts"
-      },
-      {
-        "name": "returns ok: true",
-        "status": "passed",
-        "duration": 4.2934999999999945,
-        "file": "chatbotstep/tests/api/health.test.ts"
-      },
-      {
-        "name": "triggers thought chain when mode: \"thought\"",
-        "status": "passed",
-        "duration": 7.226599999999962,
-        "file": "chatbotstep/tests/api/thought-chain.test.ts"
-      },
-      {
-        "name": "returns correct SSE headers for thought stream",
-        "status": "passed",
-        "duration": 0.9023999999999432,
-        "file": "chatbotstep/tests/api/thought-chain.test.ts"
-      },
-      {
-        "name": "accepts mode: \"thought\" without messages",
-        "status": "passed",
-        "duration": 0.6921000000002095,
-        "file": "chatbotstep/tests/api/thought-chain.test.ts"
-      },
-      {
-        "name": "applies Joe character prompt for thought mode",
-        "status": "passed",
-        "duration": 0.7559000000001106,
-        "file": "chatbotstep/tests/api/thought-chain.test.ts"
-      },
-      {
-        "name": "applies Jinx character prompt for thought mode",
-        "status": "passed",
-        "duration": 0.662900000000036,
-        "file": "chatbotstep/tests/api/thought-chain.test.ts"
-      },
-      {
-        "name": "applies Volt character prompt for thought mode",
-        "status": "passed",
-        "duration": 0.5638000000001284,
-        "file": "chatbotstep/tests/api/thought-chain.test.ts"
-      },
-      {
-        "name": "ignores messages field when mode: \"thought\"",
-        "status": "passed",
-        "duration": 0.5247999999999138,
-        "file": "chatbotstep/tests/api/thought-chain.test.ts"
-      },
-      {
-        "name": "handles errors during thought streaming",
-        "status": "passed",
-        "duration": 0.7424000000000888,
-        "file": "chatbotstep/tests/api/thought-chain.test.ts"
-      },
-      {
-        "name": "distinguishes thought mode from chat mode",
-        "status": "passed",
-        "duration": 1.2876000000001113,
-        "file": "chatbotstep/tests/api/thought-chain.test.ts"
-      },
-      {
-        "name": "continues count when thought generates no response",
-        "status": "passed",
-        "duration": 0.5470000000000255,
-        "file": "chatbotstep/tests/api/thought-chain.test.ts"
-      },
-      {
-        "name": "increments sequence even with partial thoughts",
-        "status": "passed",
-        "duration": 0.4319000000000415,
-        "file": "chatbotstep/tests/api/thought-chain.test.ts"
-      },
-      {
-        "name": "continues generating after API error mid-sequence",
-        "status": "passed",
-        "duration": 0.4741999999998825,
-        "file": "chatbotstep/tests/api/thought-chain.test.ts"
-      },
-      {
-        "name": "handles undefined character gracefully",
-        "status": "passed",
-        "duration": 0.5932000000000244,
-        "file": "chatbotstep/tests/api/thought-chain.test.ts"
-      },
-      {
-        "name": "handles malformed characterId",
-        "status": "passed",
-        "duration": 0.433699999999817,
-        "file": "chatbotstep/tests/api/thought-chain.test.ts"
-      },
-      {
-        "name": "handles stream errors without crashing",
-        "status": "passed",
-        "duration": 0.6096999999999753,
-        "file": "chatbotstep/tests/api/thought-chain.test.ts"
-      },
-      {
-        "name": "properly closes stream on abort signal",
-        "status": "passed",
-        "duration": 0.5305000000000746,
-        "file": "chatbotstep/tests/api/thought-chain.test.ts"
+        "duration": 500.7046,
+        "file": "chatbotstep/tests/api/dialogue.test.ts"
       }
     ]
   },
   "cypress": {
-    "tests": 110,
-    "passed": 110,
+    "tests": 12,
+    "passed": 12,
     "failed": 0,
     "testDetails": [
       {
-        "name": "ChatBotStep — UI renders chat inside a boxed shell",
+        "name": "ChatBotStep — Meet Realm Shell renders the Meet Realm heading and panel",
         "status": "passed",
-        "duration": 179,
-        "file": "tests/e2e/chat.cy.ts"
+        "duration": 173,
+        "file": "tests/e2e/meet-realms.cy.ts"
       },
       {
-        "name": "ChatBotStep — UI renders the header with Joe",
+        "name": "ChatBotStep — Meet Realm Shell does not show add-realm controls anymore",
         "status": "passed",
-        "duration": 71,
-        "file": "tests/e2e/chat.cy.ts"
+        "duration": 51,
+        "file": "tests/e2e/meet-realms.cy.ts"
       },
       {
-        "name": "ChatBotStep — UI shows character selector defaulting to Joe",
+        "name": "ChatBotStep — Meet Realm Shell keeps a single conversation surface visible",
         "status": "passed",
-        "duration": 53,
-        "file": "tests/e2e/chat.cy.ts"
+        "duration": 44,
+        "file": "tests/e2e/meet-realms.cy.ts"
       },
       {
-        "name": "ChatBotStep — UI shows both character options",
+        "name": "ChatBotStep — Meet Realm Shell shows larger layout width and height characteristics",
         "status": "passed",
-        "duration": 55,
-        "file": "tests/e2e/chat.cy.ts"
+        "duration": 48,
+        "file": "tests/e2e/meet-realms.cy.ts"
       },
       {
-        "name": "ChatBotStep — UI switches to Volt and updates header and starter text",
+        "name": "ChatBotStep — Meet Realm Shell dialogue still runs on the single realm",
         "status": "passed",
-        "duration": 204,
-        "file": "tests/e2e/chat.cy.ts"
-      },
-      {
-        "name": "ChatBotStep — UI persists selected character across reload",
-        "status": "passed",
-        "duration": 270,
-        "file": "tests/e2e/chat.cy.ts"
-      },
-      {
-        "name": "ChatBotStep — UI sends selected characterId in chat request payload",
-        "status": "passed",
-        "duration": 1225,
-        "file": "tests/e2e/chat.cy.ts"
-      },
-      {
-        "name": "ChatBotStep — UI shows the starter message",
-        "status": "passed",
-        "duration": 79,
-        "file": "tests/e2e/chat.cy.ts"
-      },
-      {
-        "name": "ChatBotStep — UI has a message input and send button",
-        "status": "passed",
-        "duration": 56,
-        "file": "tests/e2e/chat.cy.ts"
-      },
-      {
-        "name": "ChatBotStep — UI send button is disabled when input is empty",
-        "status": "passed",
-        "duration": 52,
-        "file": "tests/e2e/chat.cy.ts"
-      },
-      {
-        "name": "ChatBotStep — UI send button enables when text is entered",
-        "status": "passed",
-        "duration": 315,
-        "file": "tests/e2e/chat.cy.ts"
-      },
-      {
-        "name": "ChatBotStep — UI clears input after sending",
-        "status": "passed",
-        "duration": 1015,
-        "file": "tests/e2e/chat.cy.ts"
-      },
-      {
-        "name": "ChatBotStep — UI shows user message in chat after sending",
-        "status": "passed",
-        "duration": 1183,
-        "file": "tests/e2e/chat.cy.ts"
-      },
-      {
-        "name": "ChatBotStep — UI shows AI response after sending",
-        "status": "passed",
-        "duration": 970,
-        "file": "tests/e2e/chat.cy.ts"
-      },
-      {
-        "name": "ChatBotStep — UI sends message on Enter key",
-        "status": "passed",
-        "duration": 960,
-        "file": "tests/e2e/chat.cy.ts"
-      },
-      {
-        "name": "ChatBotStep — UI does not send on Shift+Enter",
-        "status": "passed",
-        "duration": 398,
-        "file": "tests/e2e/chat.cy.ts"
-      },
-      {
-        "name": "ChatBotStep — UI chat 1: 1 back-and-forth succeeds",
-        "status": "passed",
-        "duration": 995,
-        "file": "tests/e2e/chat.cy.ts"
-      },
-      {
-        "name": "ChatBotStep — UI chat 2: 5 back-and-forth succeeds",
-        "status": "passed",
-        "duration": 4872,
-        "file": "tests/e2e/chat.cy.ts"
-      },
-      {
-        "name": "ChatBotStep — UI chat 3: 10 back-and-forth succeeds",
-        "status": "passed",
-        "duration": 9772,
-        "file": "tests/e2e/chat.cy.ts"
+        "duration": 430,
+        "file": "tests/e2e/meet-realms.cy.ts"
       },
       {
         "name": "ChatBotStep — Meet Realm renders Meet Realm controls and default order text",
         "status": "passed",
-        "duration": 206,
+        "duration": 306,
         "file": "tests/e2e/conversation-realm.cy.ts"
       },
       {
-        "name": "ChatBotStep — Meet Realm blocks starting when both speakers are identical",
+        "name": "ChatBotStep — Meet Realm blocks starting when any selected speakers are identical",
         "status": "passed",
-        "duration": 360,
+        "duration": 335,
         "file": "tests/e2e/conversation-realm.cy.ts"
       },
       {
         "name": "ChatBotStep — Meet Realm starts dialogue mode and sends speaker ids in payload",
         "status": "passed",
-        "duration": 428,
+        "duration": 576,
         "file": "tests/e2e/conversation-realm.cy.ts"
       },
       {
         "name": "ChatBotStep — Meet Realm renders alternating streamed conversation messages",
         "status": "passed",
-        "duration": 153,
+        "duration": 175,
         "file": "tests/e2e/conversation-realm.cy.ts"
       },
       {
         "name": "ChatBotStep — Meet Realm switches to Stop while pending and back to Start when stopped",
         "status": "passed",
-        "duration": 229,
+        "duration": 222,
         "file": "tests/e2e/conversation-realm.cy.ts"
       },
       {
-        "name": "ChatBotStep — Conversations Extended shows error banner when API returns 500",
-        "status": "passed",
-        "duration": 943,
-        "file": "tests/e2e/conversations.cy.ts"
-      },
-      {
-        "name": "ChatBotStep — Conversations Extended shows error banner when SSE stream sends error event",
-        "status": "passed",
-        "duration": 824,
-        "file": "tests/e2e/conversations.cy.ts"
-      },
-      {
-        "name": "ChatBotStep — Conversations Extended can send more messages after an error (recovery)",
-        "status": "passed",
-        "duration": 1602,
-        "file": "tests/e2e/conversations.cy.ts"
-      },
-      {
-        "name": "ChatBotStep — Conversations Extended reasoning block renders and is collapsible",
-        "status": "passed",
-        "duration": 913,
-        "file": "tests/e2e/conversations.cy.ts"
-      },
-      {
-        "name": "ChatBotStep — Conversations Extended message input is disabled while waiting for response",
-        "status": "passed",
-        "duration": 786,
-        "file": "tests/e2e/conversations.cy.ts"
-      },
-      {
-        "name": "ChatBotStep — Conversations Extended messages appear in correct user-then-assistant order",
-        "status": "passed",
-        "duration": 820,
-        "file": "tests/e2e/conversations.cy.ts"
-      },
-      {
-        "name": "ChatBotStep — Conversations Extended long AI response text wraps correctly without overflow",
-        "status": "passed",
-        "duration": 837,
-        "file": "tests/e2e/conversations.cy.ts"
-      },
-      {
-        "name": "ChatBotStep — Conversations Extended subsequent messages show incremented user and assistant counts",
-        "status": "passed",
-        "duration": 1470,
-        "file": "tests/e2e/conversations.cy.ts"
-      },
-      {
-        "name": "ChatBotStep — Edge Cases & Error Handling Accessibility has proper heading structure",
-        "status": "passed",
-        "duration": 187,
-        "file": "tests/e2e/edge-cases.cy.ts"
-      },
-      {
-        "name": "ChatBotStep — Edge Cases & Error Handling Accessibility textarea has aria-label",
-        "status": "passed",
-        "duration": 62,
-        "file": "tests/e2e/edge-cases.cy.ts"
-      },
-      {
-        "name": "ChatBotStep — Edge Cases & Error Handling Accessibility button has aria-label",
-        "status": "passed",
-        "duration": 59,
-        "file": "tests/e2e/edge-cases.cy.ts"
-      },
-      {
-        "name": "ChatBotStep — Edge Cases & Error Handling Accessibility chat bubbles have role attributes",
-        "status": "passed",
-        "duration": 957,
-        "file": "tests/e2e/edge-cases.cy.ts"
-      },
-      {
-        "name": "ChatBotStep — Edge Cases & Error Handling Accessibility messages are announced via aria-live",
-        "status": "passed",
-        "duration": 55,
-        "file": "tests/e2e/edge-cases.cy.ts"
-      },
-      {
-        "name": "ChatBotStep — Edge Cases & Error Handling Long Content Handling displays very long user message",
-        "status": "passed",
-        "duration": 6920,
-        "file": "tests/e2e/edge-cases.cy.ts"
-      },
-      {
-        "name": "ChatBotStep — Edge Cases & Error Handling Long Content Handling wraps long AI responses",
-        "status": "passed",
-        "duration": 939,
-        "file": "tests/e2e/edge-cases.cy.ts"
-      },
-      {
-        "name": "ChatBotStep — Edge Cases & Error Handling Special Characters handles emoji in message",
-        "status": "passed",
-        "duration": 901,
-        "file": "tests/e2e/edge-cases.cy.ts"
-      },
-      {
-        "name": "ChatBotStep — Edge Cases & Error Handling Special Characters handles HTML-like content safely",
-        "status": "passed",
-        "duration": 1205,
-        "file": "tests/e2e/edge-cases.cy.ts"
-      },
-      {
-        "name": "ChatBotStep — Edge Cases & Error Handling Special Characters handles line breaks in input",
-        "status": "passed",
-        "duration": 646,
-        "file": "tests/e2e/edge-cases.cy.ts"
-      },
-      {
-        "name": "ChatBotStep — Edge Cases & Error Handling Special Characters handles unicode and international text",
-        "status": "passed",
-        "duration": 1034,
-        "file": "tests/e2e/edge-cases.cy.ts"
-      },
-      {
-        "name": "ChatBotStep — Edge Cases & Error Handling Rapid Message Sending handles quick successive messages",
-        "status": "passed",
-        "duration": 2631,
-        "file": "tests/e2e/edge-cases.cy.ts"
-      },
-      {
-        "name": "ChatBotStep — Edge Cases & Error Handling Network Error Scenarios shows error on 500 response",
-        "status": "passed",
-        "duration": 899,
-        "file": "tests/e2e/edge-cases.cy.ts"
-      },
-      {
-        "name": "ChatBotStep — Edge Cases & Error Handling Network Error Scenarios shows error on malformed response",
-        "status": "passed",
-        "duration": 952,
-        "file": "tests/e2e/edge-cases.cy.ts"
-      },
-      {
-        "name": "ChatBotStep — Edge Cases & Error Handling Button State Management button disabled on mount",
-        "status": "passed",
-        "duration": 79,
-        "file": "tests/e2e/edge-cases.cy.ts"
-      },
-      {
-        "name": "ChatBotStep — Edge Cases & Error Handling Button State Management button enables/disables on input",
-        "status": "passed",
-        "duration": 295,
-        "file": "tests/e2e/edge-cases.cy.ts"
-      },
-      {
-        "name": "ChatBotStep — Edge Cases & Error Handling Button State Management can send multiple times",
-        "status": "passed",
-        "duration": 1795,
-        "file": "tests/e2e/edge-cases.cy.ts"
-      },
-      {
-        "name": "ChatBotStep — Edge Cases & Error Handling Message Ordering keeps messages in correct order",
-        "status": "passed",
-        "duration": 4332,
-        "file": "tests/e2e/edge-cases.cy.ts"
-      },
-      {
-        "name": "ChatBotStep — Edge Cases & Error Handling Reasoning Display shows reasoning disclosure control",
-        "status": "passed",
-        "duration": 917,
-        "file": "tests/e2e/edge-cases.cy.ts"
-      },
-      {
-        "name": "ChatBotStep — Edge Cases & Error Handling Reasoning Display displays reasoning block when expanded",
-        "status": "passed",
-        "duration": 895,
-        "file": "tests/e2e/edge-cases.cy.ts"
-      },
-      {
-        "name": "ChatBotStep — Edge Cases & Error Handling Scroll Behavior scrolls to bottom on new message",
-        "status": "passed",
-        "duration": 2614,
-        "file": "tests/e2e/edge-cases.cy.ts"
-      },
-      {
-        "name": "ChatBotStep — Edge Cases & Error Handling Input Edge Cases handles tab in textarea",
-        "status": "passed",
-        "duration": 982,
-        "file": "tests/e2e/edge-cases.cy.ts"
-      },
-      {
-        "name": "ChatBotStep — Edge Cases & Error Handling Input Edge Cases trims whitespace from messages",
-        "status": "passed",
-        "duration": 989,
-        "file": "tests/e2e/edge-cases.cy.ts"
-      },
-      {
-        "name": "ChatBotStep — Edge Cases & Error Handling Input Edge Cases does not send empty whitespace-only message",
-        "status": "passed",
-        "duration": 249,
-        "file": "tests/e2e/edge-cases.cy.ts"
-      },
-      {
-        "name": "ChatBotStep — Edge Cases & Error Handling Performance handles 3 rapid back-and-forth exchanges efficiently",
-        "status": "passed",
-        "duration": 2736,
-        "file": "tests/e2e/edge-cases.cy.ts"
-      },
-      {
-        "name": "ChatBotStep — Edge Cases & Error Handling Performance maintains performance with long message history",
-        "status": "passed",
-        "duration": 8686,
-        "file": "tests/e2e/edge-cases.cy.ts"
-      },
-      {
-        "name": "ChatBotStep — Edge Cases & Error Handling Starter Message displays starter message on load",
-        "status": "passed",
-        "duration": 63,
-        "file": "tests/e2e/edge-cases.cy.ts"
-      },
-      {
-        "name": "ChatBotStep — Edge Cases & Error Handling Starter Message starter is marked as assistant",
-        "status": "passed",
-        "duration": 55,
-        "file": "tests/e2e/edge-cases.cy.ts"
-      },
-      {
-        "name": "ChatBotStep — Meet Realm Management renders Meet Realm tab by default",
-        "status": "passed",
-        "duration": 169,
-        "file": "tests/e2e/meet-realms.cy.ts"
-      },
-      {
-        "name": "ChatBotStep — Meet Realm Management adds a second Meet Realm and switches to it",
-        "status": "passed",
-        "duration": 150,
-        "file": "tests/e2e/meet-realms.cy.ts"
-      },
-      {
-        "name": "ChatBotStep — Meet Realm Management adds up to 3 Meet Realms (max limit)",
-        "status": "passed",
-        "duration": 224,
-        "file": "tests/e2e/meet-realms.cy.ts"
-      },
-      {
-        "name": "ChatBotStep — Meet Realm Management disables add button at 3 Meet Realms",
-        "status": "passed",
-        "duration": 212,
-        "file": "tests/e2e/meet-realms.cy.ts"
-      },
-      {
-        "name": "ChatBotStep — Meet Realm Management switches back to Meet Realm 1 from Meet Realm 2",
-        "status": "passed",
-        "duration": 239,
-        "file": "tests/e2e/meet-realms.cy.ts"
-      },
-      {
-        "name": "ChatBotStep — Meet Realm Management Meet Realm 2 has its own independent speaker selection",
-        "status": "passed",
-        "duration": 292,
-        "file": "tests/e2e/meet-realms.cy.ts"
-      },
-      {
-        "name": "ChatBotStep — Meet Realm Management each Meet Realm shows its own name in the header",
-        "status": "passed",
-        "duration": 131,
-        "file": "tests/e2e/meet-realms.cy.ts"
-      },
-      {
-        "name": "ChatBotStep — Meet Realm Management dialogue runs correctly in Meet Realm 1 after switching and back",
-        "status": "passed",
-        "duration": 461,
-        "file": "tests/e2e/meet-realms.cy.ts"
-      },
-      {
-        "name": "ChatBotStep — Meet Realm Management active Meet Realm tab has selected styling",
-        "status": "passed",
-        "duration": 46,
-        "file": "tests/e2e/meet-realms.cy.ts"
-      },
-      {
-        "name": "ChatBotStep — Meet Realm Management Meet Realm header label updates in each tab",
-        "status": "passed",
-        "duration": 463,
-        "file": "tests/e2e/meet-realms.cy.ts"
-      },
-      {
-        "name": "ChatBotStep — Realm Management renders Common Realm tab by default",
-        "status": "passed",
-        "duration": 193,
-        "file": "tests/e2e/realms.cy.ts"
-      },
-      {
-        "name": "ChatBotStep — Realm Management adds a second realm and switches to it",
-        "status": "passed",
-        "duration": 152,
-        "file": "tests/e2e/realms.cy.ts"
-      },
-      {
-        "name": "ChatBotStep — Realm Management adds up to 3 realms (max limit)",
-        "status": "passed",
-        "duration": 232,
-        "file": "tests/e2e/realms.cy.ts"
-      },
-      {
-        "name": "ChatBotStep — Realm Management disables add button at 3 realms",
-        "status": "passed",
-        "duration": 231,
-        "file": "tests/e2e/realms.cy.ts"
-      },
-      {
-        "name": "ChatBotStep — Realm Management switches back to Common Realm when its tab is clicked",
-        "status": "passed",
-        "duration": 225,
-        "file": "tests/e2e/realms.cy.ts"
-      },
-      {
-        "name": "ChatBotStep — Realm Management each realm has its own independent chat history",
-        "status": "passed",
-        "duration": 556,
-        "file": "tests/e2e/realms.cy.ts"
-      },
-      {
-        "name": "ChatBotStep — Realm Management character selection in Realm 2 does not affect Realm 1",
-        "status": "passed",
-        "duration": 364,
-        "file": "tests/e2e/realms.cy.ts"
-      },
-      {
-        "name": "ChatBotStep — Realm Management tab strip is scrollable with overflow",
-        "status": "passed",
-        "duration": 228,
-        "file": "tests/e2e/realms.cy.ts"
-      },
-      {
-        "name": "ChatBotStep — Realm Management active realm tab has selected styling (text-white)",
-        "status": "passed",
-        "duration": 44,
-        "file": "tests/e2e/realms.cy.ts"
-      },
-      {
-        "name": "ChatBotStep — Realm Management inactive realm tab has muted styling after adding second realm",
-        "status": "passed",
-        "duration": 132,
-        "file": "tests/e2e/realms.cy.ts"
-      },
-      {
-        "name": "ChatBotStep — Tab Switching Chat tab is active by default",
-        "status": "passed",
-        "duration": 161,
-        "file": "tests/e2e/tabs.cy.ts"
-      },
-      {
-        "name": "ChatBotStep — Tab Switching clicking Thought tab shows the thought window",
-        "status": "passed",
-        "duration": 155,
-        "file": "tests/e2e/tabs.cy.ts"
-      },
-      {
-        "name": "ChatBotStep — Tab Switching clicking Characters tab shows character selection",
-        "status": "passed",
-        "duration": 137,
-        "file": "tests/e2e/tabs.cy.ts"
-      },
-      {
-        "name": "ChatBotStep — Tab Switching Characters tab lists all four bots",
-        "status": "passed",
-        "duration": 134,
-        "file": "tests/e2e/tabs.cy.ts"
-      },
-      {
-        "name": "ChatBotStep — Tab Switching active character shows Active badge in Characters tab",
-        "status": "passed",
-        "duration": 136,
-        "file": "tests/e2e/tabs.cy.ts"
-      },
-      {
-        "name": "ChatBotStep — Tab Switching selecting a character from Characters tab switches to Chat tab",
-        "status": "passed",
-        "duration": 231,
-        "file": "tests/e2e/tabs.cy.ts"
-      },
-      {
-        "name": "ChatBotStep — Tab Switching selecting a character from Characters tab shows new starter message",
-        "status": "passed",
-        "duration": 209,
-        "file": "tests/e2e/tabs.cy.ts"
-      },
-      {
-        "name": "ChatBotStep — Tab Switching clicking back to Chat tab from Thought restores chat input",
-        "status": "passed",
-        "duration": 219,
-        "file": "tests/e2e/tabs.cy.ts"
-      },
-      {
-        "name": "ChatBotStep — Tab Switching Thought tab shows pulsing indicator when thinking is active",
-        "status": "passed",
-        "duration": 291,
-        "file": "tests/e2e/tabs.cy.ts"
-      },
-      {
-        "name": "ChatBotStep — Tab Switching character trait description visible in Characters panel",
-        "status": "passed",
-        "duration": 135,
-        "file": "tests/e2e/tabs.cy.ts"
-      },
-      {
-        "name": "ChatBotStep — Thought Window UI renders thought window when Thought tab is clicked",
-        "status": "passed",
-        "duration": 276,
-        "file": "tests/e2e/thoughts.cy.ts"
-      },
-      {
-        "name": "ChatBotStep — Thought Window UI displays thought window header with character avatar",
-        "status": "passed",
-        "duration": 145,
-        "file": "tests/e2e/thoughts.cy.ts"
-      },
-      {
-        "name": "ChatBotStep — Thought Window UI shows Start button when not thinking",
-        "status": "passed",
-        "duration": 138,
-        "file": "tests/e2e/thoughts.cy.ts"
-      },
-      {
-        "name": "ChatBotStep — Thought Window UI shows empty state message before thoughts start",
+        "name": "ChatBotStep — Meet Realm shows real dialogue content and does not render fallback try-again lines",
         "status": "passed",
         "duration": 143,
-        "file": "tests/e2e/thoughts.cy.ts"
+        "file": "tests/e2e/conversation-realm.cy.ts"
       },
       {
-        "name": "ChatBotStep — Thought Window UI enables Start button click to initiate thought chain",
+        "name": "ChatBotStep — Meet Realm renders Jinx, Mabel, and Volt dialogue without fallback copy",
         "status": "passed",
-        "duration": 240,
-        "file": "tests/e2e/thoughts.cy.ts"
-      },
-      {
-        "name": "ChatBotStep — Thought Window UI displays Stop button while thinking",
-        "status": "passed",
-        "duration": 203,
-        "file": "tests/e2e/thoughts.cy.ts"
-      },
-      {
-        "name": "ChatBotStep — Thought Window UI stops thought chain when Stop button clicked",
-        "status": "passed",
-        "duration": 292,
-        "file": "tests/e2e/thoughts.cy.ts"
-      },
-      {
-        "name": "ChatBotStep — Thought Window UI shows progress counter during thought generation",
-        "status": "passed",
-        "duration": 208,
-        "file": "tests/e2e/thoughts.cy.ts"
-      },
-      {
-        "name": "ChatBotStep — Thought Window UI displays a live thinking placeholder while generating thoughts",
-        "status": "passed",
-        "duration": 209,
-        "file": "tests/e2e/thoughts.cy.ts"
-      },
-      {
-        "name": "ChatBotStep — Thought Window UI Thought tab pulsing indicator visible while thinking",
-        "status": "passed",
-        "duration": 285,
-        "file": "tests/e2e/thoughts.cy.ts"
-      },
-      {
-        "name": "ChatBotStep — Characters & Bots shows Joe as default with correct subtitle",
-        "status": "passed",
-        "duration": 309,
-        "file": "tests/e2e/characters.cy.ts"
-      },
-      {
-        "name": "ChatBotStep — Characters & Bots switching to Jinx updates header and starter",
-        "status": "passed",
-        "duration": 228,
-        "file": "tests/e2e/characters.cy.ts"
-      },
-      {
-        "name": "ChatBotStep — Characters & Bots switching to Volt updates header and starter",
-        "status": "passed",
-        "duration": 199,
-        "file": "tests/e2e/characters.cy.ts"
-      },
-      {
-        "name": "ChatBotStep — Characters & Bots switching to Mabel updates header and starter",
-        "status": "passed",
-        "duration": 192,
-        "file": "tests/e2e/characters.cy.ts"
-      },
-      {
-        "name": "ChatBotStep — Characters & Bots character selector shows all four bots",
-        "status": "passed",
-        "duration": 54,
-        "file": "tests/e2e/characters.cy.ts"
-      },
-      {
-        "name": "ChatBotStep — Characters & Bots sending a message with Mabel sends correct characterId",
-        "status": "passed",
-        "duration": 478,
-        "file": "tests/e2e/characters.cy.ts"
-      },
-      {
-        "name": "ChatBotStep — Characters & Bots switching characters resets chat history to new starter",
-        "status": "passed",
-        "duration": 452,
-        "file": "tests/e2e/characters.cy.ts"
-      },
-      {
-        "name": "ChatBotStep — Characters & Bots all characters have avatars visible in Characters panel",
-        "status": "passed",
-        "duration": 155,
-        "file": "tests/e2e/characters.cy.ts"
-      },
-      {
-        "name": "ChatBotStep — Characters & Bots Mabel via Characters tab switch works and shows Active badge",
-        "status": "passed",
-        "duration": 296,
-        "file": "tests/e2e/characters.cy.ts"
-      },
-      {
-        "name": "ChatBotStep — Characters & Bots Mabel characterId persists across page reload",
-        "status": "passed",
-        "duration": 232,
-        "file": "tests/e2e/characters.cy.ts"
+        "duration": 592,
+        "file": "tests/e2e/conversation-realm.cy.ts"
       }
     ]
   },
   "coverage": {
-    "statements": "76.6%",
-    "branches": "61.0%",
-    "functions": "61.1%",
-    "lines": "76.6%",
+    "statements": "93.6%",
+    "branches": "69.0%",
+    "functions": "87.5%",
+    "lines": "93.6%",
     "files": [
       {
         "file": "route.ts",
-        "statements": "79.5",
-        "branches": "79.3",
-        "functions": "83.3",
-        "lines": "79.5"
+        "statements": "82.4",
+        "branches": "76.1",
+        "functions": "87.5",
+        "lines": "82.4"
       },
       {
         "file": "route.ts",
@@ -1002,21 +186,49 @@
         "lines": "100.0"
       },
       {
-        "file": "models.ts",
+        "file": "conversation.ts",
+        "statements": "100.0",
+        "branches": "50.0",
+        "functions": "100.0",
+        "lines": "100.0"
+      },
+      {
+        "file": "index.ts",
+        "statements": "60.0",
+        "branches": "50.0",
+        "functions": "50.0",
+        "lines": "60.0"
+      },
+      {
+        "file": "jinx.ts",
         "statements": "100.0",
         "branches": "N/A",
         "functions": "N/A",
         "lines": "100.0"
       },
       {
-        "file": "openrouter.ts",
-        "statements": "3.6",
-        "branches": "3.8",
-        "functions": "0.0",
-        "lines": "3.6"
+        "file": "joe.ts",
+        "statements": "100.0",
+        "branches": "N/A",
+        "functions": "N/A",
+        "lines": "100.0"
       },
       {
-        "file": "system-prompt.ts",
+        "file": "mabel.ts",
+        "statements": "100.0",
+        "branches": "N/A",
+        "functions": "N/A",
+        "lines": "100.0"
+      },
+      {
+        "file": "prompt.ts",
+        "statements": "100.0",
+        "branches": "N/A",
+        "functions": "100.0",
+        "lines": "100.0"
+      },
+      {
+        "file": "volt.ts",
         "statements": "100.0",
         "branches": "N/A",
         "functions": "N/A",
@@ -1026,7 +238,11 @@
   },
   "load": {
     "healthErrors": 0,
-    "chatErrors": 0,
+    "dialogueErrors": 0,
+    "dialogueStressErrors": 0,
+    "dialogueStressRuns": 6,
+    "dialogueStressCompletedRuns": 6,
+    "dialogueStressExpectedTurns": 50,
     "totalLoadErrors": 0
   }
 }

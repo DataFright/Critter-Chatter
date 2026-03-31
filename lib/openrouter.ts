@@ -12,10 +12,6 @@ export interface StreamEvent {
     | 'content'
     | 'done'
     | 'error'
-    | 'thought_started'
-    | 'thought_chunk'
-    | 'thought_done'
-    | 'thought_sequence_done'
     | 'dialogue_turn_started'
     | 'dialogue_chunk'
     | 'dialogue_message'
@@ -24,8 +20,6 @@ export interface StreamEvent {
   token?: string
   chunk?: string
   content?: string
-  thought?: string
-  number?: number
   total?: number
   turn?: number
   speakerId?: string

@@ -84,42 +84,53 @@ describe('POST /api/chat — Dialogue Mode', () => {
 
   it('starts dialogue mode with SSE response', async () => {
     const res = await POST(
-      makeRequest(JSON.stringify({ mode: 'dialogue', speakerAId: 'joe', speakerBId: 'jinx' })),
+      makeRequest(JSON.stringify({ mode: 'dialogue', speakerAId: 'joe', speakerBId: 'jinx', speakerCId: 'volt' })),
     )
 
     expect(res.status).toBe(200)
     expect(res.headers.get('Content-Type')).toBe('text/event-stream; charset=utf-8')
   })
 
-  it('rejects identical dialogue speakers', async () => {
+  it('rejects duplicate dialogue speakers', async () => {
     const res = await POST(
-      makeRequest(JSON.stringify({ mode: 'dialogue', speakerAId: 'joe', speakerBId: 'joe' })),
+      makeRequest(JSON.stringify({ mode: 'dialogue', speakerAId: 'joe', speakerBId: 'joe', speakerCId: 'mabel' })),
     )
 
     expect(res.status).toBe(400)
+    const data = await res.json()
+    expect(data.error).toContain('Select three different characters')
   })
 
-  it('rejects dialogue mode when speakers are omitted (defaults to identical)', async () => {
+  it('rejects dialogue mode when speakers are omitted (defaults to duplicates)', async () => {
     const res = await POST(makeRequest(JSON.stringify({ mode: 'dialogue' })))
 
     expect(res.status).toBe(400)
     const data = await res.json()
-    expect(data.error).toContain('Select two different characters')
+    expect(data.error).toContain('Select three different characters')
+  })
+
+  it('rejects non-dialogue modes for Meet Realm-only API', async () => {
+    const res = await POST(makeRequest(JSON.stringify({ mode: 'thought' })))
+
+    expect(res.status).toBe(400)
+    const data = await res.json()
+    expect(data.error).toContain('Meet Realm only supports dialogue mode')
   })
 
   it('makes the first selected speaker go first', async () => {
     const res = await POST(
-      makeRequest(JSON.stringify({ mode: 'dialogue', speakerAId: 'mabel', speakerBId: 'volt' })),
+      makeRequest(JSON.stringify({ mode: 'dialogue', speakerAId: 'mabel', speakerBId: 'volt', speakerCId: 'joe' })),
     )
     const text = await res.text()
 
     expect(text.indexOf('"speakerId":"mabel"')).toBeGreaterThan(-1)
     expect(text.indexOf('"speakerId":"volt"')).toBeGreaterThan(text.indexOf('"speakerId":"mabel"'))
+    expect(text.indexOf('"speakerId":"joe"')).toBeGreaterThan(text.indexOf('"speakerId":"volt"'))
   })
 
-  it('alternates speakers and feeds the previous line into the next turn', async () => {
+  it('rotates speakers and feeds the previous line into the next turn', async () => {
     const res = await POST(
-      makeRequest(JSON.stringify({ mode: 'dialogue', speakerAId: 'joe', speakerBId: 'jinx' })),
+      makeRequest(JSON.stringify({ mode: 'dialogue', speakerAId: 'joe', speakerBId: 'jinx', speakerCId: 'volt' })),
     )
 
     await res.text()
@@ -131,6 +142,7 @@ describe('POST /api/chat — Dialogue Mode', () => {
     const turnInputs = mockStreamChat.mock.calls.map((call) => call[1][0].content)
 
     expect(prompts.some((prompt) => prompt.includes('chaos jinx'))).toBe(true)
+    expect(prompts.some((prompt) => prompt.includes('volt fox'))).toBe(true)
     expect(
       turnInputs.some((content) =>
         content.includes('just said:') && content.includes('Reply directly to that line'),
@@ -139,9 +151,22 @@ describe('POST /api/chat — Dialogue Mode', () => {
     expect(turnInputs.some((content) => content.includes('Jinx line'))).toBe(true)
   })
 
+  it('streams 50 turns before completion', async () => {
+    const res = await POST(
+      makeRequest(JSON.stringify({ mode: 'dialogue', speakerAId: 'joe', speakerBId: 'jinx', speakerCId: 'volt' })),
+    )
+    const events = readEvents(await res.text())
+
+    const messageEvents = events.filter((event) => event.type === 'dialogue_message')
+    const doneEvent = events.find((event) => event.type === 'dialogue_done')
+
+    expect(messageEvents).toHaveLength(50)
+    expect(doneEvent?.total).toBe(50)
+  }, 15000)
+
   it('streams a dialogue completion event', async () => {
     const res = await POST(
-      makeRequest(JSON.stringify({ mode: 'dialogue', speakerAId: 'joe', speakerBId: 'jinx' })),
+      makeRequest(JSON.stringify({ mode: 'dialogue', speakerAId: 'joe', speakerBId: 'jinx', speakerCId: 'volt' })),
     )
     const text = await res.text()
 
@@ -154,7 +179,7 @@ describe('POST /api/chat — Dialogue Mode', () => {
     })
 
     const res = await POST(
-      makeRequest(JSON.stringify({ mode: 'dialogue', speakerAId: 'joe', speakerBId: 'jinx' })),
+      makeRequest(JSON.stringify({ mode: 'dialogue', speakerAId: 'joe', speakerBId: 'jinx', speakerCId: 'volt' })),
     )
     const text = await res.text()
 
@@ -168,7 +193,7 @@ describe('POST /api/chat — Dialogue Mode', () => {
     })
 
     const res = await POST(
-      makeRequest(JSON.stringify({ mode: 'dialogue', speakerAId: 'joe', speakerBId: 'jinx' })),
+      makeRequest(JSON.stringify({ mode: 'dialogue', speakerAId: 'joe', speakerBId: 'jinx', speakerCId: 'volt' })),
     )
     const events = readEvents(await res.text())
 
@@ -183,7 +208,7 @@ describe('POST /api/chat — Dialogue Mode', () => {
     })
 
     const res = await POST(
-      makeRequest(JSON.stringify({ mode: 'dialogue', speakerAId: 'joe', speakerBId: 'jinx' })),
+      makeRequest(JSON.stringify({ mode: 'dialogue', speakerAId: 'joe', speakerBId: 'jinx', speakerCId: 'volt' })),
     )
     const events = readEvents(await res.text())
 
@@ -204,7 +229,7 @@ describe('POST /api/chat — Dialogue Mode', () => {
     })
 
     const res = await POST(
-      makeRequest(JSON.stringify({ mode: 'dialogue', speakerAId: 'jinx', speakerBId: 'mabel' })),
+      makeRequest(JSON.stringify({ mode: 'dialogue', speakerAId: 'jinx', speakerBId: 'mabel', speakerCId: 'joe' })),
     )
     const events = readEvents(await res.text())
 

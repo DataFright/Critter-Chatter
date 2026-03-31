@@ -3,7 +3,7 @@
 import { useCallback, useMemo, useRef, useState } from 'react'
 import { ALL_CHARACTERS, DEFAULT_CHARACTER_ID, getCharacterById, isCharacterId } from '@/lib/characters'
 
-const DIALOGUE_MAX_TURNS = 12
+const DIALOGUE_MAX_TURNS = 50
 
 export interface ConversationMessage {
   id: string
@@ -17,6 +17,14 @@ export interface ConversationMessage {
 const DEFAULT_SPEAKER_A_ID = DEFAULT_CHARACTER_ID
 const DEFAULT_SPEAKER_B_ID =
   ALL_CHARACTERS.find((character) => character.id !== DEFAULT_SPEAKER_A_ID)?.id ?? DEFAULT_SPEAKER_A_ID
+const DEFAULT_SPEAKER_C_ID =
+  ALL_CHARACTERS.find(
+    (character) => character.id !== DEFAULT_SPEAKER_A_ID && character.id !== DEFAULT_SPEAKER_B_ID,
+  )?.id ?? DEFAULT_SPEAKER_A_ID
+
+function hasDuplicateIds(ids: string[]) {
+  return new Set(ids).size !== ids.length
+}
 
 function makeMessageId(turn: number, speakerId: string) {
   return `conversation-${turn}-${speakerId}`
@@ -25,6 +33,7 @@ function makeMessageId(turn: number, speakerId: string) {
 export function useConversationRealm() {
   const [speakerAId, setSpeakerAIdState] = useState(DEFAULT_SPEAKER_A_ID)
   const [speakerBId, setSpeakerBIdState] = useState(DEFAULT_SPEAKER_B_ID)
+  const [speakerCId, setSpeakerCIdState] = useState(DEFAULT_SPEAKER_C_ID)
   const [messages, setMessages] = useState<ConversationMessage[]>([])
   const [isRunning, setIsRunning] = useState(false)
   const [error, setError] = useState('')
@@ -33,6 +42,7 @@ export function useConversationRealm() {
 
   const speakerA = useMemo(() => getCharacterById(speakerAId), [speakerAId])
   const speakerB = useMemo(() => getCharacterById(speakerBId), [speakerBId])
+  const speakerC = useMemo(() => getCharacterById(speakerCId), [speakerCId])
 
   const resetConversation = useCallback(() => {
     setMessages([])
@@ -75,7 +85,7 @@ export function useConversationRealm() {
   )
 
   const startConversation = useCallback(async () => {
-    if (isRunning || speakerAId === speakerBId) return
+    if (isRunning || hasDuplicateIds([speakerAId, speakerBId, speakerCId])) return
 
     resetConversation()
     setIsRunning(true)
@@ -91,6 +101,7 @@ export function useConversationRealm() {
           mode: 'dialogue',
           speakerAId,
           speakerBId,
+          speakerCId,
         }),
         signal: controller.signal,
       })
@@ -207,7 +218,7 @@ export function useConversationRealm() {
       setIsRunning(false)
       abortRef.current = null
     }
-  }, [appendOrUpdateMessage, isRunning, resetConversation, speakerAId, speakerBId])
+  }, [appendOrUpdateMessage, isRunning, resetConversation, speakerAId, speakerBId, speakerCId])
 
   const setSpeakerAId = useCallback(
     (value: string) => {
@@ -233,6 +244,18 @@ export function useConversationRealm() {
     [isRunning, resetConversation, stopConversation],
   )
 
+  const setSpeakerCId = useCallback(
+    (value: string) => {
+      const nextId = isCharacterId(value) ? value : DEFAULT_SPEAKER_C_ID
+      if (isRunning) {
+        stopConversation()
+      }
+      resetConversation()
+      setSpeakerCIdState(nextId)
+    },
+    [isRunning, resetConversation, stopConversation],
+  )
+
   return {
     characters: ALL_CHARACTERS,
     speakerA,
@@ -241,12 +264,15 @@ export function useConversationRealm() {
     speakerB,
     speakerBId,
     setSpeakerBId,
+    speakerC,
+    speakerCId,
+    setSpeakerCId,
     messages,
     isRunning,
     error,
     turnCount,
     maxTurns: DIALOGUE_MAX_TURNS,
-    canStart: speakerAId !== speakerBId && !isRunning,
+    canStart: !hasDuplicateIds([speakerAId, speakerBId, speakerCId]) && !isRunning,
     startConversation,
     stopConversation,
     resetConversation,
