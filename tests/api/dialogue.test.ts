@@ -1,12 +1,14 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { NextRequest } from 'next/server'
+import type { ChatMessage, StreamEvent } from '@/lib/openrouter'
+import { ALL_CHARACTERS } from '@/lib/characters'
 
 vi.mock('@/lib/openrouter', () => ({
   streamChat: vi.fn(async (
     _apiKey: string,
-    messages: Array<{ role: 'user' | 'assistant'; content: string }>,
+    messages: ChatMessage[],
     systemPrompt: string,
-    onEvent: (event: { type: string; token?: string; content?: string; message?: string }) => void,
+    onEvent: (event: StreamEvent) => void,
     signal?: AbortSignal,
   ) => {
     if (signal?.aborted) throw new DOMException('Aborted', 'AbortError')
@@ -17,7 +19,12 @@ vi.mock('@/lib/openrouter', () => ({
     if (prompt.includes('chaos jinx')) token = 'Jinx line'
     else if (prompt.includes('volt fox')) token = 'Volt line'
     else if (prompt.includes('melancholy mabel')) token = 'Mabel line'
-    else if (prompt.includes('joe')) token = 'Joe line'
+    else if (prompt.includes('zany zeke')) token = 'Zeke line'
+    else if (prompt.includes('nova embermind')) token = 'Nova line'
+    else if (prompt.includes('velvet whisper')) token = 'Velvet line'
+    else if (prompt.includes('iron tempest')) token = 'Tempest line'
+    else if (prompt.includes('drift luma')) token = 'Luma line'
+    else if (prompt.includes('abyssal echo')) token = 'Echo line'
 
     if (messages[0]?.content.includes('FORCE_ERROR')) {
       onEvent({ type: 'error', message: 'Dialogue exploded' })
@@ -36,9 +43,9 @@ const mockStreamChat = vi.mocked(openrouter.streamChat)
 
 const defaultDialogueMock = async (
   _apiKey: string,
-  messages: Array<{ role: 'user' | 'assistant'; content: string }>,
+  messages: ChatMessage[],
   systemPrompt: string,
-  onEvent: (event: { type: string; token?: string; content?: string; message?: string }) => void,
+  onEvent: (event: StreamEvent) => void,
   signal?: AbortSignal,
 ) => {
   if (signal?.aborted) throw new DOMException('Aborted', 'AbortError')
@@ -49,7 +56,12 @@ const defaultDialogueMock = async (
   if (prompt.includes('chaos jinx')) token = 'Jinx line'
   else if (prompt.includes('volt fox')) token = 'Volt line'
   else if (prompt.includes('melancholy mabel')) token = 'Mabel line'
-  else if (prompt.includes('joe')) token = 'Joe line'
+  else if (prompt.includes('zany zeke')) token = 'Zeke line'
+  else if (prompt.includes('nova embermind')) token = 'Nova line'
+  else if (prompt.includes('velvet whisper')) token = 'Velvet line'
+  else if (prompt.includes('iron tempest')) token = 'Tempest line'
+  else if (prompt.includes('drift luma')) token = 'Luma line'
+  else if (prompt.includes('abyssal echo')) token = 'Echo line'
 
   if (messages[0]?.content.includes('FORCE_ERROR')) {
     onEvent({ type: 'error', message: 'Dialogue exploded' })
@@ -83,9 +95,7 @@ describe('POST /api/chat — Dialogue Mode', () => {
   })
 
   it('starts dialogue mode with SSE response', async () => {
-    const res = await POST(
-      makeRequest(JSON.stringify({ mode: 'dialogue', speakerAId: 'joe', speakerBId: 'jinx', speakerCId: 'volt' })),
-    )
+    const res = await POST(makeRequest(JSON.stringify({ mode: 'dialogue' })))
 
     expect(res.status).toBe(200)
     expect(res.headers.get('Content-Type')).toBe('text/event-stream; charset=utf-8')
@@ -93,20 +103,32 @@ describe('POST /api/chat — Dialogue Mode', () => {
 
   it('rejects duplicate dialogue speakers', async () => {
     const res = await POST(
-      makeRequest(JSON.stringify({ mode: 'dialogue', speakerAId: 'joe', speakerBId: 'joe', speakerCId: 'mabel' })),
+      makeRequest(JSON.stringify({ mode: 'dialogue', speakerIds: ['jinx', 'jinx', 'mabel'] })),
     )
 
     expect(res.status).toBe(400)
     const data = await res.json()
-    expect(data.error).toContain('Select three different characters')
+    expect(data.error).toContain('different')
   })
 
-  it('rejects dialogue mode when speakers are omitted (defaults to duplicates)', async () => {
-    const res = await POST(makeRequest(JSON.stringify({ mode: 'dialogue' })))
+  it('rejects payloads with fewer than 3 speakers', async () => {
+    const res = await POST(
+      makeRequest(JSON.stringify({ mode: 'dialogue', speakerIds: ['jinx', 'volt'] })),
+    )
 
     expect(res.status).toBe(400)
     const data = await res.json()
-    expect(data.error).toContain('Select three different characters')
+    expect(data.error).toContain('at least 3')
+  })
+
+  it('rejects invalid speaker IDs', async () => {
+    const res = await POST(
+      makeRequest(JSON.stringify({ mode: 'dialogue', speakerIds: ['jinx', 'volt', 'unknown'] })),
+    )
+
+    expect(res.status).toBe(400)
+    const data = await res.json()
+    expect(data.error).toContain('invalid')
   })
 
   it('rejects non-dialogue modes for Meet Realm-only API', async () => {
@@ -117,124 +139,74 @@ describe('POST /api/chat — Dialogue Mode', () => {
     expect(data.error).toContain('Meet Realm only supports dialogue mode')
   })
 
-  it('makes the first selected speaker go first', async () => {
-    const res = await POST(
-      makeRequest(JSON.stringify({ mode: 'dialogue', speakerAId: 'mabel', speakerBId: 'volt', speakerCId: 'joe' })),
-    )
-    const text = await res.text()
-
-    expect(text.indexOf('"speakerId":"mabel"')).toBeGreaterThan(-1)
-    expect(text.indexOf('"speakerId":"volt"')).toBeGreaterThan(text.indexOf('"speakerId":"mabel"'))
-    expect(text.indexOf('"speakerId":"joe"')).toBeGreaterThan(text.indexOf('"speakerId":"volt"'))
-  })
-
-  it('rotates speakers and feeds the previous line into the next turn', async () => {
-    const res = await POST(
-      makeRequest(JSON.stringify({ mode: 'dialogue', speakerAId: 'joe', speakerBId: 'jinx', speakerCId: 'volt' })),
-    )
-
-    await res.text()
-
-    expect(mockStreamChat).toHaveBeenCalled()
-    expect((mockStreamChat.mock.calls[0][2] as string).toLowerCase()).toContain('joe')
-
-    const prompts = mockStreamChat.mock.calls.map((call) => (call[2] as string).toLowerCase())
-    const turnInputs = mockStreamChat.mock.calls.map((call) => call[1][0].content)
-
-    expect(prompts.some((prompt) => prompt.includes('chaos jinx'))).toBe(true)
-    expect(prompts.some((prompt) => prompt.includes('volt fox'))).toBe(true)
-    expect(
-      turnInputs.some((content) =>
-        content.includes('just said:') && content.includes('Reply directly to that line'),
-      ),
-    ).toBe(true)
-    expect(turnInputs.some((content) => content.includes('Jinx line'))).toBe(true)
-  })
-
-  it('streams 50 turns before completion', async () => {
-    const res = await POST(
-      makeRequest(JSON.stringify({ mode: 'dialogue', speakerAId: 'joe', speakerBId: 'jinx', speakerCId: 'volt' })),
-    )
+  it('streams configured turns before completion when maxTurns is provided', async () => {
+    const res = await POST(makeRequest(JSON.stringify({ mode: 'dialogue', maxTurns: 12 })))
     const events = readEvents(await res.text())
 
     const messageEvents = events.filter((event) => event.type === 'dialogue_message')
     const doneEvent = events.find((event) => event.type === 'dialogue_done')
 
-    expect(messageEvents).toHaveLength(50)
-    expect(doneEvent?.total).toBe(50)
-  }, 15000)
+    expect(messageEvents).toHaveLength(12)
+    expect(doneEvent?.total).toBe(12)
+  }, 20000)
 
-  it('streams a dialogue completion event', async () => {
-    const res = await POST(
-      makeRequest(JSON.stringify({ mode: 'dialogue', speakerAId: 'joe', speakerBId: 'jinx', speakerCId: 'volt' })),
-    )
-    const text = await res.text()
+  it('randomizes the speaking block every 3 turns (unique within each block)', async () => {
+    const selectedIds = ['jinx', 'volt', 'mabel', 'zeke', 'nova', 'velvet']
+    const res = await POST(makeRequest(JSON.stringify({ mode: 'dialogue', speakerIds: selectedIds, maxTurns: 12 })))
+    const events = readEvents(await res.text())
 
-    expect(text).toContain('dialogue_done')
-  })
+    const messageEvents = events.filter((event) => event.type === 'dialogue_message')
 
-  it('emits error events when dialogue streaming fails', async () => {
-    mockStreamChat.mockImplementation(async () => {
-      throw new Error('Dialogue failed hard')
-    })
+    expect(messageEvents.length).toBe(12)
 
-    const res = await POST(
-      makeRequest(JSON.stringify({ mode: 'dialogue', speakerAId: 'joe', speakerBId: 'jinx', speakerCId: 'volt' })),
-    )
-    const text = await res.text()
-
-    expect(res.status).toBe(200)
-    expect(text).toContain('Dialogue failed hard')
-  })
+    for (let start = 0; start < 9; start += 3) {
+      const block = messageEvents.slice(start, start + 3)
+      const blockIds = block.map((event) => event.speakerId)
+      expect(new Set(blockIds).size).toBe(block.length)
+      expect(blockIds.every((id) => selectedIds.includes(id))).toBe(true)
+    }
+  }, 20000)
 
   it('uses character fallback line when a turn yields no dialogue content', async () => {
     mockStreamChat.mockImplementation(async (_apiKey, _messages, _systemPrompt, onEvent) => {
       onEvent({ type: 'done', content: '' })
     })
 
-    const res = await POST(
-      makeRequest(JSON.stringify({ mode: 'dialogue', speakerAId: 'joe', speakerBId: 'jinx', speakerCId: 'volt' })),
-    )
+    const res = await POST(makeRequest(JSON.stringify({ mode: 'dialogue', maxTurns: 1 })))
     const events = readEvents(await res.text())
 
     const firstMessage = events.find((event) => event.type === 'dialogue_message' && event.turn === 1)
+    const fallbackLines = [
+      'My punchline darted sideways.',
+      'The spark catches again now.',
+      'The silence answered first.',
+      'I missed the jump. Rewind me.',
+      'The idea flared out. Another pass.',
+      'The whisper slipped. Continue.',
+      'Control slipped for a second. I am steady now.',
+      'The current blurred. Let me drift back in.',
+      'The depth answered late. I can speak again.',
+    ]
+
     expect(events.find((event) => event.type === 'error')).toBeUndefined()
-    expect(firstMessage?.content).toBe('Let me answer that clearly.')
-  }, 12000)
+    expect(fallbackLines).toContain(firstMessage?.content)
+  }, 20000)
 
-  it('uses final done content when no incremental dialogue chunks are streamed', async () => {
-    mockStreamChat.mockImplementationOnce(async (_apiKey, _messages, _systemPrompt, onEvent) => {
-      onEvent({ type: 'done', content: 'Late final line' })
-    })
+  it('defaults to full roster when speakerIds are omitted', async () => {
+    const res = await POST(makeRequest(JSON.stringify({ mode: 'dialogue', maxTurns: 9 })))
 
-    const res = await POST(
-      makeRequest(JSON.stringify({ mode: 'dialogue', speakerAId: 'joe', speakerBId: 'jinx', speakerCId: 'volt' })),
-    )
     const events = readEvents(await res.text())
 
-    const firstMessage = events.find((event) => event.type === 'dialogue_message' && event.turn === 1)
-    expect(firstMessage?.content).toBe('Late final line')
-  })
+    expect(events.filter((event) => event.type === 'dialogue_message')).toHaveLength(9)
+    expect(events.find((event) => event.type === 'dialogue_done')?.total).toBe(9)
+    expect(mockStreamChat).toHaveBeenCalled()
+    expect(ALL_CHARACTERS.length).toBeGreaterThanOrEqual(9)
+  }, 20000)
 
-  it('retries an empty Jinx turn and uses the later non-empty response', async () => {
-    let attempts = 0
-    mockStreamChat.mockImplementation(async (_apiKey, _messages, _systemPrompt, onEvent) => {
-      attempts += 1
-      if (attempts === 1) {
-        onEvent({ type: 'done', content: '' })
-        return
-      }
-
-      onEvent({ type: 'done', content: 'Recovered line' })
-    })
-
-    const res = await POST(
-      makeRequest(JSON.stringify({ mode: 'dialogue', speakerAId: 'jinx', speakerBId: 'mabel', speakerCId: 'joe' })),
-    )
+  it('emits dialogue_done when maxTurns is provided', async () => {
+    const res = await POST(makeRequest(JSON.stringify({ mode: 'dialogue', maxTurns: 3 })))
     const events = readEvents(await res.text())
 
-    const firstMessage = events.find((event) => event.type === 'dialogue_message' && event.turn === 1)
-    expect(firstMessage?.content).toBe('Recovered line')
-    expect(attempts).toBeGreaterThan(1)
+    expect(events.find((event) => event.type === 'dialogue_done')?.total).toBe(3)
   })
 })

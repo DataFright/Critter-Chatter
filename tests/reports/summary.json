@@ -1,182 +1,164 @@
 {
-  "timestamp": "2026-03-31T19:29:02.963Z",
+  "timestamp": "2026-03-31T21:26:59.371Z",
   "status": "PASS",
   "totals": {
-    "tests": 24,
-    "passed": 24,
+    "tests": 21,
+    "passed": 21,
     "failed": 0,
     "passRate": "100%"
   },
   "vitest": {
-    "tests": 12,
-    "passed": 12,
+    "tests": 11,
+    "passed": 11,
     "failed": 0,
     "testDetails": [
       {
         "name": "starts dialogue mode with SSE response",
         "status": "passed",
-        "duration": 7.504100000000108,
+        "duration": 9.61629999999991,
         "file": "chatbotstep/tests/api/dialogue.test.ts"
       },
       {
         "name": "rejects duplicate dialogue speakers",
         "status": "passed",
-        "duration": 1.4623999999998887,
+        "duration": 1.3393000000000939,
         "file": "chatbotstep/tests/api/dialogue.test.ts"
       },
       {
-        "name": "rejects dialogue mode when speakers are omitted (defaults to duplicates)",
+        "name": "rejects payloads with fewer than 3 speakers",
         "status": "passed",
-        "duration": 0.723700000000008,
+        "duration": 0.5671999999999571,
+        "file": "chatbotstep/tests/api/dialogue.test.ts"
+      },
+      {
+        "name": "rejects invalid speaker IDs",
+        "status": "passed",
+        "duration": 0.5131999999998698,
         "file": "chatbotstep/tests/api/dialogue.test.ts"
       },
       {
         "name": "rejects non-dialogue modes for Meet Realm-only API",
         "status": "passed",
-        "duration": 0.6390999999998712,
+        "duration": 0.5264000000001943,
         "file": "chatbotstep/tests/api/dialogue.test.ts"
       },
       {
-        "name": "makes the first selected speaker go first",
+        "name": "streams configured turns before completion when maxTurns is provided",
         "status": "passed",
-        "duration": 478.93179999999984,
+        "duration": 105.67200000000003,
         "file": "chatbotstep/tests/api/dialogue.test.ts"
       },
       {
-        "name": "rotates speakers and feeds the previous line into the next turn",
+        "name": "randomizes the speaking block every 3 turns (unique within each block)",
         "status": "passed",
-        "duration": 500.4276,
-        "file": "chatbotstep/tests/api/dialogue.test.ts"
-      },
-      {
-        "name": "streams 50 turns before completion",
-        "status": "passed",
-        "duration": 483.81809999999996,
-        "file": "chatbotstep/tests/api/dialogue.test.ts"
-      },
-      {
-        "name": "streams a dialogue completion event",
-        "status": "passed",
-        "duration": 466.8502000000003,
-        "file": "chatbotstep/tests/api/dialogue.test.ts"
-      },
-      {
-        "name": "emits error events when dialogue streaming fails",
-        "status": "passed",
-        "duration": 32.20869999999968,
+        "duration": 132.99710000000005,
         "file": "chatbotstep/tests/api/dialogue.test.ts"
       },
       {
         "name": "uses character fallback line when a turn yields no dialogue content",
         "status": "passed",
-        "duration": 1468.1563,
+        "duration": 33.881599999999935,
         "file": "chatbotstep/tests/api/dialogue.test.ts"
       },
       {
-        "name": "uses final done content when no incremental dialogue chunks are streamed",
+        "name": "defaults to full roster when speakerIds are omitted",
         "status": "passed",
-        "duration": 464.8642,
+        "duration": 68.57330000000002,
         "file": "chatbotstep/tests/api/dialogue.test.ts"
       },
       {
-        "name": "retries an empty Jinx turn and uses the later non-empty response",
+        "name": "emits dialogue_done when maxTurns is provided",
         "status": "passed",
-        "duration": 500.7046,
+        "duration": 31.08680000000004,
         "file": "chatbotstep/tests/api/dialogue.test.ts"
+      },
+      {
+        "name": "returns ok: true",
+        "status": "passed",
+        "duration": 6.011199999999917,
+        "file": "chatbotstep/tests/api/health.test.ts"
       }
     ]
   },
   "cypress": {
-    "tests": 12,
-    "passed": 12,
+    "tests": 10,
+    "passed": 10,
     "failed": 0,
     "testDetails": [
       {
-        "name": "ChatBotStep — Meet Realm Shell renders the Meet Realm heading and panel",
+        "name": "ChatBotStep - Meet Realm Shell renders the Meet Realm heading and panel",
         "status": "passed",
-        "duration": 173,
+        "duration": 189,
         "file": "tests/e2e/meet-realms.cy.ts"
       },
       {
-        "name": "ChatBotStep — Meet Realm Shell does not show add-realm controls anymore",
+        "name": "ChatBotStep - Meet Realm Shell keeps a single conversation surface visible",
         "status": "passed",
-        "duration": 51,
+        "duration": 45,
         "file": "tests/e2e/meet-realms.cy.ts"
       },
       {
-        "name": "ChatBotStep — Meet Realm Shell keeps a single conversation surface visible",
+        "name": "ChatBotStep - Meet Realm Shell shows larger layout width and height characteristics",
         "status": "passed",
-        "duration": 44,
+        "duration": 45,
         "file": "tests/e2e/meet-realms.cy.ts"
       },
       {
-        "name": "ChatBotStep — Meet Realm Shell shows larger layout width and height characteristics",
+        "name": "ChatBotStep - Meet Realm Shell runs dialogue on the single realm with full roster payload",
         "status": "passed",
-        "duration": 48,
+        "duration": 168,
         "file": "tests/e2e/meet-realms.cy.ts"
       },
       {
-        "name": "ChatBotStep — Meet Realm Shell dialogue still runs on the single realm",
+        "name": "ChatBotStep - Meet Realm renders the full roster panel and random-order note",
         "status": "passed",
-        "duration": 430,
-        "file": "tests/e2e/meet-realms.cy.ts"
-      },
-      {
-        "name": "ChatBotStep — Meet Realm renders Meet Realm controls and default order text",
-        "status": "passed",
-        "duration": 306,
+        "duration": 596,
         "file": "tests/e2e/conversation-realm.cy.ts"
       },
       {
-        "name": "ChatBotStep — Meet Realm blocks starting when any selected speakers are identical",
+        "name": "ChatBotStep - Meet Realm uses dark scrollbar styling class on the message panel",
         "status": "passed",
-        "duration": 335,
+        "duration": 61,
         "file": "tests/e2e/conversation-realm.cy.ts"
       },
       {
-        "name": "ChatBotStep — Meet Realm starts dialogue mode and sends speaker ids in payload",
+        "name": "ChatBotStep - Meet Realm sends all characters in payload on start",
         "status": "passed",
-        "duration": 576,
+        "duration": 151,
         "file": "tests/e2e/conversation-realm.cy.ts"
       },
       {
-        "name": "ChatBotStep — Meet Realm renders alternating streamed conversation messages",
+        "name": "ChatBotStep - Meet Realm renders messages in one column",
         "status": "passed",
-        "duration": 175,
+        "duration": 154,
         "file": "tests/e2e/conversation-realm.cy.ts"
       },
       {
-        "name": "ChatBotStep — Meet Realm switches to Stop while pending and back to Start when stopped",
+        "name": "ChatBotStep - Meet Realm shows live progress without a fixed turn cap",
         "status": "passed",
-        "duration": 222,
+        "duration": 129,
         "file": "tests/e2e/conversation-realm.cy.ts"
       },
       {
-        "name": "ChatBotStep — Meet Realm shows real dialogue content and does not render fallback try-again lines",
+        "name": "ChatBotStep - Meet Realm applies unique bubble colors for different speakers",
         "status": "passed",
-        "duration": 143,
-        "file": "tests/e2e/conversation-realm.cy.ts"
-      },
-      {
-        "name": "ChatBotStep — Meet Realm renders Jinx, Mabel, and Volt dialogue without fallback copy",
-        "status": "passed",
-        "duration": 592,
+        "duration": 153,
         "file": "tests/e2e/conversation-realm.cy.ts"
       }
     ]
   },
   "coverage": {
-    "statements": "93.6%",
-    "branches": "69.0%",
-    "functions": "87.5%",
-    "lines": "93.6%",
+    "statements": "96.9%",
+    "branches": "65.6%",
+    "functions": "99.0%",
+    "lines": "96.9%",
     "files": [
       {
         "file": "route.ts",
-        "statements": "82.4",
-        "branches": "76.1",
-        "functions": "87.5",
-        "lines": "82.4"
+        "statements": "75.9",
+        "branches": "62.5",
+        "functions": "95.2",
+        "lines": "75.9"
       },
       {
         "file": "route.ts",
@@ -193,11 +175,18 @@
         "lines": "100.0"
       },
       {
+        "file": "echo.ts",
+        "statements": "100.0",
+        "branches": "N/A",
+        "functions": "N/A",
+        "lines": "100.0"
+      },
+      {
         "file": "index.ts",
-        "statements": "60.0",
+        "statements": "80.0",
         "branches": "50.0",
-        "functions": "50.0",
-        "lines": "60.0"
+        "functions": "100.0",
+        "lines": "80.0"
       },
       {
         "file": "jinx.ts",
@@ -207,7 +196,7 @@
         "lines": "100.0"
       },
       {
-        "file": "joe.ts",
+        "file": "luma.ts",
         "statements": "100.0",
         "branches": "N/A",
         "functions": "N/A",
@@ -221,6 +210,13 @@
         "lines": "100.0"
       },
       {
+        "file": "nova.ts",
+        "statements": "100.0",
+        "branches": "N/A",
+        "functions": "N/A",
+        "lines": "100.0"
+      },
+      {
         "file": "prompt.ts",
         "statements": "100.0",
         "branches": "N/A",
@@ -228,7 +224,28 @@
         "lines": "100.0"
       },
       {
+        "file": "tempest.ts",
+        "statements": "100.0",
+        "branches": "N/A",
+        "functions": "N/A",
+        "lines": "100.0"
+      },
+      {
+        "file": "velvet.ts",
+        "statements": "100.0",
+        "branches": "N/A",
+        "functions": "N/A",
+        "lines": "100.0"
+      },
+      {
         "file": "volt.ts",
+        "statements": "100.0",
+        "branches": "N/A",
+        "functions": "N/A",
+        "lines": "100.0"
+      },
+      {
+        "file": "zeke.ts",
         "statements": "100.0",
         "branches": "N/A",
         "functions": "N/A",
@@ -242,7 +259,7 @@
     "dialogueStressErrors": 0,
     "dialogueStressRuns": 6,
     "dialogueStressCompletedRuns": 6,
-    "dialogueStressExpectedTurns": 50,
+    "dialogueStressExpectedTurns": 100,
     "totalLoadErrors": 0
   }
 }

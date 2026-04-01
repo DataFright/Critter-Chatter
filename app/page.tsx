@@ -10,16 +10,8 @@ function MeetRealmPane({ realmName }: { realmName: string }) {
     <div>
       <ConversationRealm
         realmName={realmName}
-        characters={meetRealm.characters}
-        speakerAId={meetRealm.speakerAId}
-        speakerBId={meetRealm.speakerBId}
-        speakerCId={meetRealm.speakerCId}
-        setSpeakerAId={meetRealm.setSpeakerAId}
-        setSpeakerBId={meetRealm.setSpeakerBId}
-        setSpeakerCId={meetRealm.setSpeakerCId}
-        speakerA={meetRealm.speakerA}
-        speakerB={meetRealm.speakerB}
-        speakerC={meetRealm.speakerC}
+        speakerIds={meetRealm.speakerIds}
+        speakers={meetRealm.speakers}
         messages={meetRealm.messages}
         isRunning={meetRealm.isRunning}
         error={meetRealm.error}
@@ -28,6 +20,7 @@ function MeetRealmPane({ realmName }: { realmName: string }) {
         canStart={meetRealm.canStart}
         onStart={meetRealm.startConversation}
         onStop={meetRealm.stopConversation}
+        onRandomize={meetRealm.randomizeSpeakers}
       />
     </div>
   )
@@ -39,7 +32,7 @@ export default function Home() {
       <div className="w-full max-w-[1120px]">
         <header className="mb-5 px-1">
           <h1 className="text-2xl font-semibold text-zinc-100">Meet Realm</h1>
-          <p className="text-sm text-zinc-400">Character-to-character dialogue studio</p>
+          <p className="text-sm text-zinc-400">Full-roster dialogue studio with 3-turn randomized order</p>
         </header>
 
         <MeetRealmPane realmName="Meet Realm" />

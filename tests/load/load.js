@@ -8,7 +8,7 @@ const REPORTS_DIR = path.join(__dirname, '../reports/load')
 fs.mkdirSync(REPORTS_DIR, { recursive: true })
 
 const BASE_URL = process.env.BASE_URL || 'http://localhost:3010'
-const STRESS_EXPECTED_TURNS = 50
+const STRESS_EXPECTED_TURNS = 100
 
 function run(opts) {
   return new Promise((resolve, reject) => {
@@ -51,9 +51,8 @@ async function fetchDialogue(url) {
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify({
       mode: 'dialogue',
-      speakerAId: 'joe',
-      speakerBId: 'jinx',
-      speakerCId: 'volt',
+      maxTurns: STRESS_EXPECTED_TURNS,
+      speakerIds: ['jinx', 'volt', 'mabel', 'zeke', 'nova', 'velvet', 'tempest', 'luma', 'echo'],
     }),
   })
 

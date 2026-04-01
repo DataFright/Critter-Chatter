@@ -1,21 +1,39 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { streamChat, type ChatMessage, type StreamEvent } from '@/lib/openrouter'
 import {
+  ALL_CHARACTERS,
   buildConversationFallbackLine,
   buildConversationOpeningPrompt,
   buildConversationReplyPrompt,
   buildConversationTurnSystemPrompt,
   getCharacterById,
+  isCharacterId,
 } from '@/lib/characters'
 import type { CharacterDefinition } from '@/lib/characters/types'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 
-const DIALOGUE_MAX_TURNS = 50
+const DIALOGUE_RANDOM_BLOCK_SIZE = 3
+const DIALOGUE_MIN_SPEAKER_COUNT = 3
 const DIALOGUE_DELAY_MS = 350
 const DIALOGUE_TURN_MAX_ATTEMPTS = 3
 const DIALOGUE_TURN_RETRY_DELAY_MS = 150
+
+function shuffleCharacters(characters: CharacterDefinition[]) {
+  const shuffled = [...characters]
+
+  for (let index = shuffled.length - 1; index > 0; index -= 1) {
+    const swapIndex = Math.floor(Math.random() * (index + 1))
+    ;[shuffled[index], shuffled[swapIndex]] = [shuffled[swapIndex], shuffled[index]]
+  }
+
+  return shuffled
+}
+
+function pickRandomSpeakerBlock(speakers: CharacterDefinition[]) {
+  return shuffleCharacters(speakers).slice(0, Math.min(DIALOGUE_RANDOM_BLOCK_SIZE, speakers.length))
+}
 
 async function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms))
@@ -33,6 +51,30 @@ function getRetryDelayMs() {
   return process.env.NODE_ENV === 'test' ? 0 : DIALOGUE_TURN_RETRY_DELAY_MS
 }
 
+function parseSpeakerIds(body: {
+  speakerIds?: unknown
+  speakerAId?: unknown
+  speakerBId?: unknown
+  speakerCId?: unknown
+  speakerDId?: unknown
+}) {
+  if (Array.isArray(body.speakerIds)) {
+    return body.speakerIds.filter((value): value is string => typeof value === 'string')
+  }
+
+  return [body.speakerAId, body.speakerBId, body.speakerCId, body.speakerDId].filter(
+    (value): value is string => typeof value === 'string',
+  )
+}
+
+function parseMaxTurns(body: { maxTurns?: unknown }) {
+  if (typeof body.maxTurns !== 'number' || !Number.isInteger(body.maxTurns)) {
+    return null
+  }
+
+  return body.maxTurns > 0 ? body.maxTurns : null
+}
+
 export async function POST(req: NextRequest) {
   const apiKey = process.env.OPENROUTER_API_KEY
   if (!apiKey) {
@@ -40,9 +82,12 @@ export async function POST(req: NextRequest) {
   }
 
   let body: {
+    speakerIds?: unknown
     speakerAId?: unknown
     speakerBId?: unknown
     speakerCId?: unknown
+    speakerDId?: unknown
+    maxTurns?: unknown
     mode?: unknown
   }
 
@@ -60,48 +105,69 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Meet Realm only supports dialogue mode' }, { status: 400 })
   }
 
-  const speakerA = getCharacterById(typeof body.speakerAId === 'string' ? body.speakerAId : undefined)
-  const speakerB = getCharacterById(typeof body.speakerBId === 'string' ? body.speakerBId : undefined)
-  const speakerC = getCharacterById(typeof body.speakerCId === 'string' ? body.speakerCId : undefined)
+  const parsedSpeakerIds = parseSpeakerIds(body)
+  const maxTurns = parseMaxTurns(body)
+  const speakerIds =
+    parsedSpeakerIds.length > 0
+      ? parsedSpeakerIds
+      : ALL_CHARACTERS.map((character) => character.id)
 
-  const speakers = [speakerA, speakerB, speakerC]
+  if (speakerIds.length < DIALOGUE_MIN_SPEAKER_COUNT) {
+    return NextResponse.json(
+      { error: `Select at least ${DIALOGUE_MIN_SPEAKER_COUNT} characters` },
+      { status: 400 },
+    )
+  }
+
+  if (!speakerIds.every((id) => isCharacterId(id))) {
+    return NextResponse.json({ error: 'One or more selected characters are invalid' }, { status: 400 })
+  }
+
+  const speakers = speakerIds.map((id) => getCharacterById(id))
 
   if (hasDuplicateCharacterIds(speakers)) {
-    return NextResponse.json({ error: 'Select three different characters' }, { status: 400 })
+    return NextResponse.json({ error: 'Select different characters' }, { status: 400 })
   }
 
   if (process.env.MOCK_AI === '1') {
     const encoder = new TextEncoder()
     const stream = new ReadableStream({
-      start(controller) {
-        const events: StreamEvent[] = []
+      async start(controller) {
+        let activeBlock = pickRandomSpeakerBlock(speakers)
+        let turn = 0
 
-        for (let turn = 0; turn < DIALOGUE_MAX_TURNS; turn += 1) {
-          const speaker = speakers[turn % speakers.length]
+        while (!req.signal.aborted && (maxTurns === null || turn < maxTurns)) {
+          if (turn > 0 && turn % DIALOGUE_RANDOM_BLOCK_SIZE === 0) {
+            activeBlock = pickRandomSpeakerBlock(speakers)
+          }
+
+          const blockTurnIndex = turn % DIALOGUE_RANDOM_BLOCK_SIZE
+          const speaker = activeBlock[Math.min(blockTurnIndex, activeBlock.length - 1)]
           const turnNumber = turn + 1
 
-          events.push({
+          controller.enqueue(encoder.encode(`data: ${JSON.stringify({
             type: 'dialogue_turn_started',
             turn: turnNumber,
             speakerId: speaker.id,
             speakerName: speaker.name,
             speakerAvatar: speaker.avatar,
-          })
+          })}\n\n`))
 
-          events.push({
+          controller.enqueue(encoder.encode(`data: ${JSON.stringify({
             type: 'dialogue_message',
             turn: turnNumber,
             speakerId: speaker.id,
             speakerName: speaker.name,
             speakerAvatar: speaker.avatar,
             content: `${speaker.name} mock turn ${turnNumber}.`,
-          })
+          })}\n\n`))
+
+          turn += 1
+          await sleep(getDialogueDelayMs())
         }
 
-        events.push({ type: 'dialogue_done', total: DIALOGUE_MAX_TURNS })
-
-        for (const event of events) {
-          controller.enqueue(encoder.encode(`data: ${JSON.stringify(event)}\n\n`))
+        if (maxTurns !== null && !req.signal.aborted) {
+          controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: 'dialogue_done', total: maxTurns })}\n\n`))
         }
 
         controller.close()
@@ -118,13 +184,14 @@ export async function POST(req: NextRequest) {
     })
   }
 
-  return handleDialogue(apiKey, speakers, req.signal)
+  return handleDialogue(apiKey, speakers, req.signal, maxTurns)
 }
 
 async function handleDialogue(
   apiKey: string,
   speakers: CharacterDefinition[],
   signal: AbortSignal,
+  maxTurns: number | null,
 ) {
   const encoder = new TextEncoder()
 
@@ -141,12 +208,19 @@ async function handleDialogue(
         let previousLine = ''
         const dialogueDelayMs = getDialogueDelayMs()
         const retryDelayMs = getRetryDelayMs()
+        let activeBlock = pickRandomSpeakerBlock(speakers)
 
-        for (let turn = 0; turn < DIALOGUE_MAX_TURNS; turn++) {
-          if (signal.aborted) break
+        let turn = 0
 
-          const speaker = speakers[turn % speakers.length]
-          const listener = speakers[(turn + 1) % speakers.length]
+        while (!signal.aborted && (maxTurns === null || turn < maxTurns)) {
+
+          if (turn > 0 && turn % DIALOGUE_RANDOM_BLOCK_SIZE === 0) {
+            activeBlock = pickRandomSpeakerBlock(speakers)
+          }
+
+          const blockTurnIndex = turn % DIALOGUE_RANDOM_BLOCK_SIZE
+          const speaker = activeBlock[Math.min(blockTurnIndex, activeBlock.length - 1)]
+          const listener = activeBlock[(blockTurnIndex + 1) % activeBlock.length]
 
           const turnPrompt =
             turn === 0
@@ -251,12 +325,16 @@ async function handleDialogue(
             content: finalLine,
           })
 
-          if (turn < DIALOGUE_MAX_TURNS - 1) {
+          turn += 1
+
+          if (!signal.aborted && (maxTurns === null || turn < maxTurns)) {
             await sleep(dialogueDelayMs)
           }
         }
 
-        send({ type: 'dialogue_done', total: DIALOGUE_MAX_TURNS })
+        if (maxTurns !== null && !signal.aborted) {
+          send({ type: 'dialogue_done', total: maxTurns })
+        }
       } catch (err) {
         if (err instanceof Error && err.name !== 'AbortError') {
           send({ type: 'error', message: err.message })

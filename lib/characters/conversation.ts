@@ -1,11 +1,6 @@
 import type { CharacterDefinition } from './types'
 
 const CONVERSATION_OPENERS: Record<string, string[]> = {
-  joe: [
-    'Open with a grounded observation for {other}.',
-    'Start simply and ask {other} one gentle question.',
-    'Begin the conversation with calm practical warmth toward {other}.',
-  ],
   jinx: [
     'Open with playful mischief aimed at {other}.',
     'Start with a chaotic but harmless tease for {other}.',
@@ -21,13 +16,48 @@ const CONVERSATION_OPENERS: Record<string, string[]> = {
     'Begin with a gentle poetic observation for {other}.',
     'Start with quiet warmth and a reflective note for {other}.',
   ],
+  zeke: [
+    'Open by pitching a ridiculous stunt to {other}.',
+    'Start with a cliff-edge dare for {other}.',
+    'Kick off with loud thrill-energy aimed at {other}.',
+  ],
+  nova: [
+    'Open with a cosmic concept sketch for {other}.',
+    'Start by inviting {other} into a strange invention idea.',
+    'Begin with a brilliant abstract image for {other}.',
+  ],
+  velvet: [
+    'Open quietly with a precise observation about {other}.',
+    'Start with a subtle strategic hint to {other}.',
+    'Begin with calm, controlled pressure toward {other}.',
+  ],
+  tempest: [
+    'Open with restrained force and calm control for {other}.',
+    'Start in measured silence, then challenge {other} directly.',
+    'Begin with disciplined intensity aimed at {other}.',
+  ],
+  luma: [
+    'Open softly like a drifting dream toward {other}.',
+    'Start with a fluid image and invite {other} in.',
+    'Begin gently with surreal warmth for {other}.',
+  ],
+  echo: [
+    'Open with ancient calm and gravity for {other}.',
+    'Start with one deep and reflective note to {other}.',
+    'Begin slowly, with quiet oceanic weight for {other}.',
+  ],
 }
 
 const CONVERSATION_FALLBACK_LINES: Record<string, string> = {
-  joe: 'Let me answer that clearly.',
   jinx: 'My punchline darted sideways.',
   volt: 'The spark catches again now.',
   mabel: 'The silence answered first.',
+  zeke: 'I missed the jump. Rewind me.',
+  nova: 'The idea flared out. Another pass.',
+  velvet: 'The whisper slipped. Continue.',
+  tempest: 'Control slipped for a second. I am steady now.',
+  luma: 'The current blurred. Let me drift back in.',
+  echo: 'The depth answered late. I can speak again.',
 }
 
 function fillTemplate(template: string, otherName: string) {
@@ -60,7 +90,7 @@ export function buildConversationOpeningPrompt(
   speaker: CharacterDefinition,
   listener: CharacterDefinition,
 ): string {
-  const templates = CONVERSATION_OPENERS[speaker.id] ?? CONVERSATION_OPENERS.joe
+  const templates = CONVERSATION_OPENERS[speaker.id] ?? CONVERSATION_OPENERS.jinx
   const template = templates[Math.floor(Math.random() * templates.length)]
 
   return [
@@ -83,5 +113,5 @@ export function buildConversationReplyPrompt(
 }
 
 export function buildConversationFallbackLine(speaker: CharacterDefinition): string {
-  return CONVERSATION_FALLBACK_LINES[speaker.id] ?? CONVERSATION_FALLBACK_LINES.joe
+  return CONVERSATION_FALLBACK_LINES[speaker.id] ?? CONVERSATION_FALLBACK_LINES.jinx
 }

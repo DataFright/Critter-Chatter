@@ -1,6 +1,6 @@
 # 🚀 Test Report Summary
 
-**Generated:** 2026-03-31T19:29:02.948Z  
+**Generated:** 2026-03-31T21:26:59.355Z  
 **Status:** **PASS | all checks green**  
 **Overall Pass Rate:** **100%**
 
@@ -10,8 +10,8 @@
 
 | Metric | Value | Status |
 |--------|-------|--------|
-| **Total Tests** | 24 | ✅ |
-| **Passed** | 24 | - |
+| **Total Tests** | 21 | ✅ |
+| **Passed** | 21 | - |
 | **Failed** | 0 | - |
 | **Pass Rate** | **100%** | Excellent |
 | **Progress** | ████████████████████████ 100% | - |
@@ -24,8 +24,8 @@
 
 | Metric | Value |
 |--------|-------|
-| **Tests** | 12 |
-| **Passed** | 12 ✅ |
+| **Tests** | 11 |
+| **Passed** | 11 ✅ |
 | **Failed** | 0  |
 | **Pass Rate** | **100%** |
 | **Coverage** | ████████████████████████ 100% |
@@ -34,12 +34,12 @@
 
 | Metric | Value |
 |--------|-------|
-| **Tests** | 12 |
-| **Passed** | 12 ✅ |
+| **Tests** | 10 |
+| **Passed** | 10 ✅ |
 | **Failed** | 0  |
 | **Pending** | 0 |
 | **Pass Rate** | **100%** |
-| **Duration** | 5.6s |
+| **Duration** | 4.0s |
 | **Coverage** | ████████████████████████ 100% |
 
 ---
@@ -50,20 +50,20 @@
 
 | Metric | Value | Status |
 |--------|-------|--------|
-| **Request Rate** | 1631.4 req/s | ✅ |
+| **Request Rate** | 1633.6 req/s | ✅ |
 | **Average Latency** | 6ms | Excellent |
 | **P90 Latency** | 7ms | Excellent |
-| **P99 Latency** | 37ms | Excellent |
+| **P99 Latency** | 38ms | Excellent |
 | **Errors** | 0 | ✅ Zero errors |
 
 ### Dialogue Endpoint Performance
 
 | Metric | Value | Status |
 |--------|-------|--------|
-| **Request Rate** | 144.42 req/s | ✅ |
-| **Average Latency** | 7ms | Excellent |
-| **P90 Latency** | 35.74109999999928ms | Excellent |
-| **P99 Latency** | 35.74109999999928ms | Excellent |
+| **Request Rate** | 0.03 req/s | ✅ |
+| **Average Latency** | 35.49s | Good |
+| **P90 Latency** | 35533.80459999999ms | Good |
+| **P99 Latency** | 35533.80459999999ms | Good |
 | **Errors** | 0 | ✅ Zero errors |
 
 ### Dialogue Stress Test
@@ -71,11 +71,11 @@
 | Metric | Value | Status |
 |--------|-------|--------|
 | **Runs** | 6/6 | ✅ |
-| **Expected Turns** | 50 | ✅ |
+| **Expected Turns** | 100 | ✅ |
 | **Concurrency** | 3 | Configured |
-| **Average Duration** | 4ms | Excellent |
-| **P90 Duration** | 6ms | Excellent |
-| **Average Turns Observed** | 50.0 | Complete |
+| **Average Duration** | 35.47s | Good |
+| **P90 Duration** | 35.52s | Good |
+| **Average Turns Observed** | 100.0 | Complete |
 | **Errors** | 0 | ✅ Zero errors |
 
 **Total Load Errors:** ✅ 0
@@ -90,33 +90,30 @@
 | --- | --- | --- |
 | starts dialogue mode with SSE response | chatbotstep/tests/api/dialogue.test.ts | ✅ |
 | rejects duplicate dialogue speakers | chatbotstep/tests/api/dialogue.test.ts | ✅ |
-| rejects dialogue mode when speakers are omitted (defaults to duplicates) | chatbotstep/tests/api/dialogue.test.ts | ✅ |
+| rejects payloads with fewer than 3 speakers | chatbotstep/tests/api/dialogue.test.ts | ✅ |
+| rejects invalid speaker IDs | chatbotstep/tests/api/dialogue.test.ts | ✅ |
 | rejects non-dialogue modes for Meet Realm-only API | chatbotstep/tests/api/dialogue.test.ts | ✅ |
-| makes the first selected speaker go first | chatbotstep/tests/api/dialogue.test.ts | ✅ |
-| rotates speakers and feeds the previous line into the next turn | chatbotstep/tests/api/dialogue.test.ts | ✅ |
-| streams 50 turns before completion | chatbotstep/tests/api/dialogue.test.ts | ✅ |
-| streams a dialogue completion event | chatbotstep/tests/api/dialogue.test.ts | ✅ |
-| emits error events when dialogue streaming fails | chatbotstep/tests/api/dialogue.test.ts | ✅ |
+| streams configured turns before completion when maxTurns is provided | chatbotstep/tests/api/dialogue.test.ts | ✅ |
+| randomizes the speaking block every 3 turns (unique within each block) | chatbotstep/tests/api/dialogue.test.ts | ✅ |
 | uses character fallback line when a turn yields no dialogue content | chatbotstep/tests/api/dialogue.test.ts | ✅ |
-| uses final done content when no incremental dialogue chunks are streamed | chatbotstep/tests/api/dialogue.test.ts | ✅ |
-| retries an empty Jinx turn and uses the later non-empty response | chatbotstep/tests/api/dialogue.test.ts | ✅ |
+| defaults to full roster when speakerIds are omitted | chatbotstep/tests/api/dialogue.test.ts | ✅ |
+| emits dialogue_done when maxTurns is provided | chatbotstep/tests/api/dialogue.test.ts | ✅ |
+| returns ok: true | chatbotstep/tests/api/health.test.ts | ✅ |
 
 ### E2E Tests  
 
 | Test Suite | Test Name | Status | Duration |
 | --- | --- | --- | --- |
-| tests/e2e/meet-realms.cy.ts | ChatBotStep — Meet Realm Shell renders the Meet Realm heading and panel | ✅ | 173ms |
-| tests/e2e/meet-realms.cy.ts | ChatBotStep — Meet Realm Shell does not show add-realm controls anymore | ✅ | 51ms |
-| tests/e2e/meet-realms.cy.ts | ChatBotStep — Meet Realm Shell keeps a single conversation surface visible | ✅ | 44ms |
-| tests/e2e/meet-realms.cy.ts | ChatBotStep — Meet Realm Shell shows larger layout width and height characteristics | ✅ | 48ms |
-| tests/e2e/meet-realms.cy.ts | ChatBotStep — Meet Realm Shell dialogue still runs on the single realm | ✅ | 430ms |
-| tests/e2e/conversation-realm.cy.ts | ChatBotStep — Meet Realm renders Meet Realm controls and default order text | ✅ | 306ms |
-| tests/e2e/conversation-realm.cy.ts | ChatBotStep — Meet Realm blocks starting when any selected speakers are identical | ✅ | 335ms |
-| tests/e2e/conversation-realm.cy.ts | ChatBotStep — Meet Realm starts dialogue mode and sends speaker ids in payload | ✅ | 576ms |
-| tests/e2e/conversation-realm.cy.ts | ChatBotStep — Meet Realm renders alternating streamed conversation messages | ✅ | 175ms |
-| tests/e2e/conversation-realm.cy.ts | ChatBotStep — Meet Realm switches to Stop while pending and back to Start when stopped | ✅ | 222ms |
-| tests/e2e/conversation-realm.cy.ts | ChatBotStep — Meet Realm shows real dialogue content and does not render fallback try-again lines | ✅ | 143ms |
-| tests/e2e/conversation-realm.cy.ts | ChatBotStep — Meet Realm renders Jinx, Mabel, and Volt dialogue without fallback copy | ✅ | 592ms |
+| tests/e2e/meet-realms.cy.ts | ChatBotStep - Meet Realm Shell renders the Meet Realm heading and panel | ✅ | 189ms |
+| tests/e2e/meet-realms.cy.ts | ChatBotStep - Meet Realm Shell keeps a single conversation surface visible | ✅ | 45ms |
+| tests/e2e/meet-realms.cy.ts | ChatBotStep - Meet Realm Shell shows larger layout width and height characteristics | ✅ | 45ms |
+| tests/e2e/meet-realms.cy.ts | ChatBotStep - Meet Realm Shell runs dialogue on the single realm with full roster payload | ✅ | 168ms |
+| tests/e2e/conversation-realm.cy.ts | ChatBotStep - Meet Realm renders the full roster panel and random-order note | ✅ | 596ms |
+| tests/e2e/conversation-realm.cy.ts | ChatBotStep - Meet Realm uses dark scrollbar styling class on the message panel | ✅ | 61ms |
+| tests/e2e/conversation-realm.cy.ts | ChatBotStep - Meet Realm sends all characters in payload on start | ✅ | 151ms |
+| tests/e2e/conversation-realm.cy.ts | ChatBotStep - Meet Realm renders messages in one column | ✅ | 154ms |
+| tests/e2e/conversation-realm.cy.ts | ChatBotStep - Meet Realm shows live progress without a fixed turn cap | ✅ | 129ms |
+| tests/e2e/conversation-realm.cy.ts | ChatBotStep - Meet Realm applies unique bubble colors for different speakers | ✅ | 153ms |
 
 ---
 
@@ -126,34 +123,39 @@
 
 | Metric | Coverage | Status |
 |--------|----------|--------|
-| **Statements** | **93.6%** | ✅ |
-| **Branches** | **69.0%** | ⚠️ |
-| **Functions** | **87.5%** | ✅ |
-| **Lines** | **93.6%** | ✅ |
+| **Statements** | **96.9%** | ✅ |
+| **Branches** | **65.6%** | ⚠️ |
+| **Functions** | **99.0%** | ✅ |
+| **Lines** | **96.9%** | ✅ |
 
 **File Coverage Breakdown:**
 
 | File | Statements | Branches | Functions | Lines |
 | --- | --- | --- | --- | --- |
-| route.ts | 82.4% | 76.1% | 87.5% | 82.4% |
+| route.ts | 75.9% | 62.5% | 95.2% | 75.9% |
 | route.ts | 100.0% | 100.0% | 100.0% | 100.0% |
 | conversation.ts | 100.0% | 50.0% | 100.0% | 100.0% |
-| index.ts | 60.0% | 50.0% | 50.0% | 60.0% |
+| echo.ts | 100.0% | N/A | N/A | 100.0% |
+| index.ts | 80.0% | 50.0% | 100.0% | 80.0% |
 | jinx.ts | 100.0% | N/A | N/A | 100.0% |
-| joe.ts | 100.0% | N/A | N/A | 100.0% |
+| luma.ts | 100.0% | N/A | N/A | 100.0% |
 | mabel.ts | 100.0% | N/A | N/A | 100.0% |
+| nova.ts | 100.0% | N/A | N/A | 100.0% |
 | prompt.ts | 100.0% | N/A | 100.0% | 100.0% |
+| tempest.ts | 100.0% | N/A | N/A | 100.0% |
+| velvet.ts | 100.0% | N/A | N/A | 100.0% |
 | volt.ts | 100.0% | N/A | N/A | 100.0% |
+| zeke.ts | 100.0% | N/A | N/A | 100.0% |
 
 ---
 
 
 ### ✅ All Tests Passing!
 
-Excellent work! All 24 tests are passing with **100%** pass rate.
+Excellent work! All 21 tests are passing with **100%** pass rate.
 
-- Unit/API tests: 12/12 passing
-- E2E tests: 12/12 passing  
+- Unit/API tests: 11/11 passing
+- E2E tests: 10/10 passing  
 - Load errors: 0 total
   
 
@@ -179,4 +181,4 @@ Excellent work! All 24 tests are passing with **100%** pass rate.
 
 ---
 
-*Report generated on 3/31/2026, 2:29:02 PM*
+*Report generated on 3/31/2026, 4:26:59 PM*

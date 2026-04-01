@@ -1,9 +1,9 @@
 'use client'
 
-import { useCallback, useMemo, useRef, useState } from 'react'
-import { ALL_CHARACTERS, DEFAULT_CHARACTER_ID, getCharacterById, isCharacterId } from '@/lib/characters'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { ALL_CHARACTERS, getCharacterById } from '@/lib/characters'
 
-const DIALOGUE_MAX_TURNS = 50
+const INITIAL_SPEAKER_IDS = ALL_CHARACTERS.map((character) => character.id)
 
 export interface ConversationMessage {
   id: string
@@ -14,35 +14,34 @@ export interface ConversationMessage {
   content: string
 }
 
-const DEFAULT_SPEAKER_A_ID = DEFAULT_CHARACTER_ID
-const DEFAULT_SPEAKER_B_ID =
-  ALL_CHARACTERS.find((character) => character.id !== DEFAULT_SPEAKER_A_ID)?.id ?? DEFAULT_SPEAKER_A_ID
-const DEFAULT_SPEAKER_C_ID =
-  ALL_CHARACTERS.find(
-    (character) => character.id !== DEFAULT_SPEAKER_A_ID && character.id !== DEFAULT_SPEAKER_B_ID,
-  )?.id ?? DEFAULT_SPEAKER_A_ID
-
-function hasDuplicateIds(ids: string[]) {
-  return new Set(ids).size !== ids.length
-}
-
 function makeMessageId(turn: number, speakerId: string) {
   return `conversation-${turn}-${speakerId}`
 }
 
+function shuffleSpeakerIds(): string[] {
+  const ids = ALL_CHARACTERS.map((character) => character.id)
+
+  for (let i = ids.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[ids[i], ids[j]] = [ids[j], ids[i]]
+  }
+
+  return ids
+}
+
 export function useConversationRealm() {
-  const [speakerAId, setSpeakerAIdState] = useState(DEFAULT_SPEAKER_A_ID)
-  const [speakerBId, setSpeakerBIdState] = useState(DEFAULT_SPEAKER_B_ID)
-  const [speakerCId, setSpeakerCIdState] = useState(DEFAULT_SPEAKER_C_ID)
+  const [speakerIds, setSpeakerIds] = useState<string[]>(INITIAL_SPEAKER_IDS)
   const [messages, setMessages] = useState<ConversationMessage[]>([])
   const [isRunning, setIsRunning] = useState(false)
   const [error, setError] = useState('')
   const [turnCount, setTurnCount] = useState(0)
   const abortRef = useRef<AbortController | null>(null)
 
-  const speakerA = useMemo(() => getCharacterById(speakerAId), [speakerAId])
-  const speakerB = useMemo(() => getCharacterById(speakerBId), [speakerBId])
-  const speakerC = useMemo(() => getCharacterById(speakerCId), [speakerCId])
+  const speakers = useMemo(() => speakerIds.map((id) => getCharacterById(id)), [speakerIds])
+
+  useEffect(() => {
+    setSpeakerIds(shuffleSpeakerIds())
+  }, [])
 
   const resetConversation = useCallback(() => {
     setMessages([])
@@ -55,6 +54,14 @@ export function useConversationRealm() {
     abortRef.current = null
     setIsRunning(false)
   }, [])
+
+  const randomizeSpeakers = useCallback(() => {
+    if (isRunning) {
+      stopConversation()
+    }
+    resetConversation()
+    setSpeakerIds(shuffleSpeakerIds())
+  }, [isRunning, resetConversation, stopConversation])
 
   const appendOrUpdateMessage = useCallback(
     (turn: number, speakerId: string, speakerName: string, speakerAvatar: string, content: string) => {
@@ -85,8 +92,9 @@ export function useConversationRealm() {
   )
 
   const startConversation = useCallback(async () => {
-    if (isRunning || hasDuplicateIds([speakerAId, speakerBId, speakerCId])) return
+    if (isRunning) return
 
+    const selectedSpeakerIds = speakerIds.length ? speakerIds : INITIAL_SPEAKER_IDS
     resetConversation()
     setIsRunning(true)
 
@@ -99,9 +107,7 @@ export function useConversationRealm() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           mode: 'dialogue',
-          speakerAId,
-          speakerBId,
-          speakerCId,
+          speakerIds: selectedSpeakerIds,
         }),
         signal: controller.signal,
       })
@@ -218,63 +224,21 @@ export function useConversationRealm() {
       setIsRunning(false)
       abortRef.current = null
     }
-  }, [appendOrUpdateMessage, isRunning, resetConversation, speakerAId, speakerBId, speakerCId])
-
-  const setSpeakerAId = useCallback(
-    (value: string) => {
-      const nextId = isCharacterId(value) ? value : DEFAULT_SPEAKER_A_ID
-      if (isRunning) {
-        stopConversation()
-      }
-      resetConversation()
-      setSpeakerAIdState(nextId)
-    },
-    [isRunning, resetConversation, stopConversation],
-  )
-
-  const setSpeakerBId = useCallback(
-    (value: string) => {
-      const nextId = isCharacterId(value) ? value : DEFAULT_SPEAKER_B_ID
-      if (isRunning) {
-        stopConversation()
-      }
-      resetConversation()
-      setSpeakerBIdState(nextId)
-    },
-    [isRunning, resetConversation, stopConversation],
-  )
-
-  const setSpeakerCId = useCallback(
-    (value: string) => {
-      const nextId = isCharacterId(value) ? value : DEFAULT_SPEAKER_C_ID
-      if (isRunning) {
-        stopConversation()
-      }
-      resetConversation()
-      setSpeakerCIdState(nextId)
-    },
-    [isRunning, resetConversation, stopConversation],
-  )
+  }, [appendOrUpdateMessage, isRunning, resetConversation, speakerIds])
 
   return {
     characters: ALL_CHARACTERS,
-    speakerA,
-    speakerAId,
-    setSpeakerAId,
-    speakerB,
-    speakerBId,
-    setSpeakerBId,
-    speakerC,
-    speakerCId,
-    setSpeakerCId,
+    speakerIds,
+    speakers,
     messages,
     isRunning,
     error,
     turnCount,
-    maxTurns: DIALOGUE_MAX_TURNS,
-    canStart: !hasDuplicateIds([speakerAId, speakerBId, speakerCId]) && !isRunning,
+    maxTurns: null,
+    canStart: !isRunning,
     startConversation,
     stopConversation,
     resetConversation,
+    randomizeSpeakers,
   }
 }

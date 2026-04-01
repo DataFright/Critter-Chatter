@@ -1,43 +1,40 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useLayoutEffect, useRef } from 'react'
 import type { CharacterDefinition } from '@/lib/characters/types'
 import type { ConversationMessage } from '@/hooks/useConversationRealm'
 
 interface ConversationRealmProps {
   realmName?: string
-  characters: CharacterDefinition[]
-  speakerAId: string
-  speakerBId: string
-  speakerCId: string
-  setSpeakerAId: (value: string) => void
-  setSpeakerBId: (value: string) => void
-  setSpeakerCId: (value: string) => void
-  speakerA: CharacterDefinition
-  speakerB: CharacterDefinition
-  speakerC: CharacterDefinition
+  speakerIds: string[]
+  speakers: CharacterDefinition[]
   messages: ConversationMessage[]
   isRunning: boolean
   error: string
   turnCount: number
-  maxTurns: number
+  maxTurns: number | null
   canStart: boolean
   onStart: () => void
   onStop: () => void
+  onRandomize: () => void
+}
+
+const SPEAKER_BUBBLE_CLASS_BY_ID: Record<string, string> = {
+  jinx: 'bg-fuchsia-900/45 text-fuchsia-50 border border-fuchsia-700/60',
+  volt: 'bg-cyan-900/45 text-cyan-50 border border-cyan-700/60',
+  mabel: 'bg-amber-900/45 text-amber-50 border border-amber-700/60',
+  zeke: 'bg-orange-900/50 text-orange-50 border border-orange-700/60',
+  nova: 'bg-violet-900/45 text-violet-50 border border-violet-700/60',
+  velvet: 'bg-rose-900/45 text-rose-50 border border-rose-700/60',
+  tempest: 'bg-red-900/45 text-red-50 border border-red-700/60',
+  luma: 'bg-teal-900/45 text-teal-50 border border-teal-700/60',
+  echo: 'bg-blue-900/45 text-blue-50 border border-blue-700/60',
 }
 
 export function ConversationRealm({
   realmName = 'Meet Realm',
-  characters,
-  speakerAId,
-  speakerBId,
-  speakerCId,
-  setSpeakerAId,
-  setSpeakerBId,
-  setSpeakerCId,
-  speakerA,
-  speakerB,
-  speakerC,
+  speakerIds,
+  speakers,
   messages,
   isRunning,
   error,
@@ -46,16 +43,22 @@ export function ConversationRealm({
   canStart,
   onStart,
   onStop,
+  onRandomize,
 }: ConversationRealmProps) {
   const messagesRef = useRef<HTMLDivElement>(null)
-  const hasDuplicateSpeakers = new Set([speakerAId, speakerBId, speakerCId]).size !== 3
-  const speakerOrder = [speakerA, speakerB, speakerC]
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const container = messagesRef.current
     if (!container) return
+
+    // Force scroll to the latest message as soon as new content renders.
     container.scrollTop = container.scrollHeight
+    requestAnimationFrame(() => {
+      container.scrollTop = container.scrollHeight
+    })
   }, [messages, isRunning])
+
+  const progressLabel = maxTurns === null ? `${turnCount} live` : `${turnCount}/${maxTurns}`
 
   return (
     <section
@@ -74,11 +77,18 @@ export function ConversationRealm({
           {realmName}
         </span>
         <div className="ml-auto flex items-center gap-2">
-          {isRunning && (
+          {(isRunning || turnCount > 0) && (
             <span className="text-xs text-emerald-400" data-testid="conversation-progress">
-              <span className="animate-pulse">●</span> {turnCount}/{maxTurns}
+              <span className="animate-pulse">●</span> {progressLabel}
             </span>
           )}
+          <button
+            onClick={onRandomize}
+            disabled={isRunning}
+            className="rounded px-2 py-1 text-xs font-medium transition-colors bg-zinc-800 text-zinc-200 border border-zinc-600 hover:bg-zinc-700 disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            ↻ Reroll
+          </button>
           <button
             onClick={isRunning ? onStop : onStart}
             disabled={!isRunning && !canStart}
@@ -94,68 +104,20 @@ export function ConversationRealm({
       </header>
 
       <div className="border-b border-zinc-700/60 bg-zinc-800/30 px-4 py-4 space-y-3">
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-          <label className="flex flex-col gap-1 text-xs text-zinc-400">
-            First Speaker
-            <select
-              aria-label="Conversation first speaker"
-              value={speakerAId}
-              onChange={(event) => setSpeakerAId(event.target.value)}
-              className="rounded-lg border border-zinc-700 bg-zinc-900 px-3 py-2 text-sm text-zinc-100 focus:outline-none"
-              disabled={isRunning}
-            >
-              {characters.map((character) => (
-                <option key={character.id} value={character.id}>
-                  {character.name}
-                </option>
-              ))}
-            </select>
-          </label>
-
-          <label className="flex flex-col gap-1 text-xs text-zinc-400">
-            Second Speaker
-            <select
-              aria-label="Conversation second speaker"
-              value={speakerBId}
-              onChange={(event) => setSpeakerBId(event.target.value)}
-              className="rounded-lg border border-zinc-700 bg-zinc-900 px-3 py-2 text-sm text-zinc-100 focus:outline-none"
-              disabled={isRunning}
-            >
-              {characters.map((character) => (
-                <option key={character.id} value={character.id}>
-                  {character.name}
-                </option>
-              ))}
-            </select>
-          </label>
-
-          <label className="flex flex-col gap-1 text-xs text-zinc-400">
-            Third Speaker
-            <select
-              aria-label="Conversation third speaker"
-              value={speakerCId}
-              onChange={(event) => setSpeakerCId(event.target.value)}
-              className="rounded-lg border border-zinc-700 bg-zinc-900 px-3 py-2 text-sm text-zinc-100 focus:outline-none"
-              disabled={isRunning}
-            >
-              {characters.map((character) => (
-                <option key={character.id} value={character.id}>
-                  {character.name}
-                </option>
-              ))}
-            </select>
-          </label>
+        <div className="rounded-xl border border-zinc-700/70 bg-zinc-950/40 px-3 py-3 text-xs text-zinc-400">
+          <span className="font-semibold text-zinc-200">Character Roster:</span>
+          <div className="mt-2 grid grid-cols-2 gap-2 lg:grid-cols-4" data-testid="random-speaker-list">
+            {speakers.map((speaker) => (
+              <div key={speaker.id} className="rounded border border-zinc-700 px-2 py-1 text-zinc-300">
+                {speaker.avatar} {speaker.name}
+              </div>
+            ))}
+          </div>
         </div>
 
         <div className="rounded-xl border border-zinc-700/70 bg-zinc-950/40 px-3 py-3 text-xs text-zinc-400">
-          <span className="font-semibold text-zinc-200">Order:</span> {speakerOrder.map((speaker, index) => `${speaker.avatar} ${speaker.name}${index === 0 ? ' opens' : ' follows'}`).join(', then ')}.
+          <span className="font-semibold text-zinc-200">Order:</span> Randomized every 3 turns from the full roster.
         </div>
-
-        {hasDuplicateSpeakers && (
-          <div className="rounded-lg border border-amber-800/50 bg-amber-950/30 px-3 py-2 text-xs text-amber-300">
-            Select three different bots to start a conversation.
-          </div>
-        )}
 
         {error && (
           <div className="rounded-lg border border-red-800/50 bg-red-950/40 px-3 py-2 text-xs text-red-300">
@@ -166,42 +128,32 @@ export function ConversationRealm({
 
       <div
         ref={messagesRef}
-        className="flex-1 overflow-y-auto px-5 py-5 space-y-3 h-[calc(760px-168px)]"
+        className="meet-realm-scroll flex-1 overflow-y-auto px-5 py-5 space-y-3 h-[calc(760px-210px)]"
       >
         {messages.length === 0 && !isRunning ? (
           <div className="h-full flex items-center justify-center text-center text-sm text-zinc-500 px-6">
-            Choose three bots and start the realm to watch them rotate through the conversation.
+            Start the realm to run a full-roster meetup conversation until you stop it.
           </div>
         ) : (
           <>
             {messages.map((message) => {
-              const speakerIndex = [speakerAId, speakerBId, speakerCId].indexOf(message.speakerId)
-              const alignClass =
-                speakerIndex === 1 ? 'justify-end' : speakerIndex === 2 ? 'justify-center' : 'justify-start'
-              const itemClass =
-                speakerIndex === 1 ? 'items-end' : speakerIndex === 2 ? 'items-center' : 'items-start'
               const bubbleClass =
-                speakerIndex === 1
-                  ? 'bg-emerald-900/50 text-emerald-50 rounded-tr-sm border border-emerald-700/60'
-                  : speakerIndex === 2
-                    ? 'bg-amber-900/40 text-amber-50 border border-amber-700/60'
-                    : 'bg-zinc-800 text-zinc-100 rounded-tl-sm border border-zinc-700'
+                SPEAKER_BUBBLE_CLASS_BY_ID[message.speakerId] ??
+                'bg-zinc-800 text-zinc-100 border border-zinc-700'
 
               return (
                 <div
                   key={message.id}
-                  className={`flex ${alignClass}`}
+                  className="flex justify-start"
                   data-testid="conversation-message"
                 >
-                  <div className={`max-w-[82%] ${itemClass} flex flex-col`}>
+                  <div className="max-w-[82%] items-start flex flex-col">
                     <div className="mb-1 flex items-center gap-2 text-[11px] text-zinc-500">
                       <span className="text-base leading-none">{message.speakerAvatar}</span>
                       <span>{message.speakerName}</span>
                       <span>Turn {message.turn}</span>
                     </div>
-                    <div
-                      className={`rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${bubbleClass}`}
-                    >
+                    <div className={`rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${bubbleClass}`}>
                       {message.content || <span className="text-zinc-500 italic">speaking...</span>}
                     </div>
                   </div>

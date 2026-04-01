@@ -1,14 +1,16 @@
 # ChatBotStep — Meet Realm
 
-Meet Realm is a dialogue-focused Next.js app where three characters rotate through short, in-character turns.
+Meet Realm is a dialogue-focused Next.js app where the full character roster rotates through short, in-character turns until you stop it.
 
 ## What This App Includes
 
 - Single Meet Realm interface
-- Three-character rotating dialogue streaming from `/api/chat`
+- Full-roster dialogue streaming from `/api/chat`
+- Speaker order randomizes every 3 messages
 - Turn-by-turn SSE events (`dialogue_turn_started`, `dialogue_chunk`, `dialogue_message`, `dialogue_done`)
 - Retry handling for empty model turns with character-specific fallback lines
-- Stress coverage for full 50-turn conversations
+- Stress coverage for bounded 100-turn test conversations while the app itself runs continuously
+- Character roster: Chaos Jinx, Volt Fox, Melancholy Mabel, Zany Zeke, Nova Embermind, Velvet Whisper, Iron Tempest, Drift Luma, Abyssal Echo
 
 ## Requirements
 
@@ -38,7 +40,7 @@ OPENROUTER_API_KEY=your_key_here
 npm run test:run        # Vitest
 npm run test:e2e        # Cypress against production build
 npm run test:load       # Autocannon load checks
-npm run test:stress     # Full 50-turn stress runs with mock SSE output
+npm run test:stress     # Full 100-turn stress runs with mock SSE output
 npm run test:all        # Full pipeline + summary reports
 ```
 

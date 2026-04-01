@@ -219,11 +219,11 @@ const md = `# 🚀 Test Report Summary
 | Metric | Value | Status |
 |--------|-------|--------|
 | **Runs** | ${dialogueStressCompletedRuns}/${dialogueStressRuns} | ${dialogueStressErrors === 0 ? '✅' : '⚠️'} |
-| **Expected Turns** | ${dialogueStressExpectedTurns} | ${dialogueStressExpectedTurns === 50 ? '✅' : '⚠️'} |
+| **Expected Turns** | ${dialogueStressExpectedTurns} | ${Number(dialogueStressExpectedTurns) > 0 ? '✅' : '⚠️'} |
 | **Concurrency** | ${dialogueStressConcurrency} | ${dialogueStressConcurrency === 'N/A' ? 'N/A' : 'Configured'} |
 | **Average Duration** | ${formatMs(parseFloat(dialogueStressAvgMs))} | ${statusByThreshold(parseFloat(dialogueStressAvgMs), 3000)} |
 | **P90 Duration** | ${Number.isFinite(Number(dialogueStressP90)) ? formatMs(Number(dialogueStressP90)) : 'N/A'} | ${statusByThreshold(Number(dialogueStressP90), 5000)} |
-| **Average Turns Observed** | ${dialogueStressTurnsAvg} | ${Number(dialogueStressTurnsAvg) === 50 ? 'Complete' : 'Incomplete'} |
+| **Average Turns Observed** | ${dialogueStressTurnsAvg} | ${Number(dialogueStressTurnsAvg) === Number(dialogueStressExpectedTurns) ? 'Complete' : 'Incomplete'} |
 | **Errors** | ${dialogueStressErrors} | ${dialogueStressErrors === 0 ? '✅ Zero errors' : '❌ ' + dialogueStressErrors + ' errors'} |
 
 **Total Load Errors:** ${totalLoadErrors === 0 ? '✅ ' + totalLoadErrors : '❌ ' + totalLoadErrors}
