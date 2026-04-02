@@ -125,9 +125,6 @@ const overallStatus = totalFailed === 0 && totalLoadErrors === 0 ? 'PASS' : 'FAI
 const statusBadge = overallStatus === 'PASS' ? 'PASS | all checks green' : 'FAIL | action needed'
 const generatedAt = new Date().toISOString()
 
-const table = (rows) =>
-  '| Metric | Value |\n| --- | --- |\n' + rows.map(([k, v]) => `| ${k} | ${v} |`).join('\n')
-
 function progressBar(passed, total, width = 24) {
   if (!total) return `${'-'.repeat(width)} 0%`
   const ratio = Math.max(0, Math.min(1, passed / total))

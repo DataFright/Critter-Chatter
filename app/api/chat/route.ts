@@ -19,6 +19,18 @@ const DIALOGUE_MIN_SPEAKER_COUNT = 3
 const DIALOGUE_DELAY_MS = 350
 const DIALOGUE_TURN_MAX_ATTEMPTS = 3
 const DIALOGUE_TURN_RETRY_DELAY_MS = 150
+const DIALOGUE_REACTION_LOOKBACK = 8
+const DIALOGUE_REACTION_MIN_SCORE = 2
+const DIALOGUE_REACTION_MULTI_MIN_SCORE = 4
+const DIALOGUE_REACTION_POPULARITY_BONUS_CAP = 3
+const DIALOGUE_REACTION_MAX_PER_TURN = 3
+
+interface DialogueHistoryEntry {
+  turn: number
+  speakerId: string
+  speakerName: string
+  content: string
+}
 
 function shuffleCharacters(characters: CharacterDefinition[]) {
   const shuffled = [...characters]
@@ -73,6 +85,157 @@ function parseMaxTurns(body: { maxTurns?: unknown }) {
   }
 
   return body.maxTurns > 0 ? body.maxTurns : null
+}
+
+function tokenize(text: string) {
+  return text
+    .toLowerCase()
+    .split(/[^a-z0-9]+/)
+    .filter((token) => token.length >= 3)
+}
+
+function getPositivePreferenceTokens(character: CharacterDefinition) {
+  return new Set(
+    tokenize(
+      [
+        ...character.traits.likes,
+        ...character.traits.characteristics,
+        character.traits.personality,
+      ].join(' '),
+    ),
+  )
+}
+
+function getNegativePreferenceTokens(character: CharacterDefinition) {
+  return new Set(tokenize(character.traits.dislikes.join(' ')))
+}
+
+function scoreReactionForMessage(
+  reactor: CharacterDefinition,
+  target: DialogueHistoryEntry,
+  recencyRank: number,
+) {
+  const tokens = new Set(tokenize(target.content))
+  if (tokens.size === 0) return 0
+
+  const positiveTokens = getPositivePreferenceTokens(reactor)
+  const negativeTokens = getNegativePreferenceTokens(reactor)
+
+  let positiveMatches = 0
+  let negativeMatches = 0
+
+  for (const token of tokens) {
+    if (positiveTokens.has(token)) {
+      positiveMatches += 1
+    }
+    if (negativeTokens.has(token)) {
+      negativeMatches += 1
+    }
+  }
+
+  if (positiveMatches === 0) {
+    return 0
+  }
+
+  const recencyBonus = Math.max(0, 2 - recencyRank)
+  return positiveMatches * 2 + recencyBonus - negativeMatches * 2
+}
+
+function buildReactionLine(reactor: CharacterDefinition, targetSpeakerName: string, score: number) {
+  if (score >= 6) {
+    return `${reactor.avatar} loves this from ${targetSpeakerName}`
+  }
+
+  if (score >= 4) {
+    return `${reactor.avatar} is into ${targetSpeakerName}'s take`
+  }
+
+  return `${reactor.avatar} nods at ${targetSpeakerName}`
+}
+
+function pickReactionEvents(
+  speakers: CharacterDefinition[],
+  latestSpeakerId: string,
+  history: DialogueHistoryEntry[],
+  reactionCountByTurn: Map<number, number>,
+): StreamEvent[] {
+  if (history.length === 0) {
+    return []
+  }
+
+  const recent = history.slice(-DIALOGUE_REACTION_LOOKBACK)
+  const candidates: Array<{
+    reactor: CharacterDefinition
+    target: DialogueHistoryEntry
+    score: number
+    recencyRank: number
+  }> = []
+
+  for (const reactor of speakers) {
+    if (reactor.id === latestSpeakerId) {
+      continue
+    }
+
+    let bestForReactor:
+      | {
+          target: DialogueHistoryEntry
+          score: number
+          recencyRank: number
+        }
+      | null = null
+
+    for (let index = recent.length - 1; index >= 0; index -= 1) {
+      const target = recent[index]
+      if (target.speakerId === reactor.id) {
+        continue
+      }
+
+      const recencyRank = recent.length - 1 - index
+      const baseScore = scoreReactionForMessage(reactor, target, recencyRank)
+      const popularityBonus = Math.min(
+        DIALOGUE_REACTION_POPULARITY_BONUS_CAP,
+        reactionCountByTurn.get(target.turn) ?? 0,
+      )
+      const score = baseScore + popularityBonus
+
+      if (!bestForReactor || score > bestForReactor.score) {
+        bestForReactor = { target, score, recencyRank }
+      }
+    }
+
+    if (bestForReactor) {
+      candidates.push({ reactor, ...bestForReactor })
+    }
+  }
+
+  const multiReactions = candidates
+    .filter((candidate) => candidate.score >= DIALOGUE_REACTION_MULTI_MIN_SCORE)
+    .sort((a, b) => b.score - a.score || a.recencyRank - b.recencyRank)
+    .slice(0, DIALOGUE_REACTION_MAX_PER_TURN)
+
+  const selected = multiReactions.length > 0
+    ? multiReactions
+    : candidates
+        .filter((candidate) => candidate.score >= DIALOGUE_REACTION_MIN_SCORE)
+        .sort((a, b) => b.score - a.score || a.recencyRank - b.recencyRank)
+        .slice(0, 1)
+
+  if (selected.length === 0) {
+    return []
+  }
+
+  return selected.map((item) => ({
+    type: 'dialogue_reaction',
+    turn: item.target.turn,
+    targetTurn: item.target.turn,
+    speakerId: item.reactor.id,
+    speakerName: item.reactor.name,
+    speakerAvatar: item.reactor.avatar,
+    targetSpeakerId: item.target.speakerId,
+    targetSpeakerName: item.target.speakerName,
+    reactionScore: item.score,
+    content: buildReactionLine(item.reactor, item.target.speakerName, item.score),
+  }))
 }
 
 export async function POST(req: NextRequest) {
@@ -135,6 +298,8 @@ export async function POST(req: NextRequest) {
       async start(controller) {
         let activeBlock = pickRandomSpeakerBlock(speakers)
         let turn = 0
+        const history: DialogueHistoryEntry[] = []
+        const reactionCountByTurn = new Map<number, number>()
 
         while (!req.signal.aborted && (maxTurns === null || turn < maxTurns)) {
           if (turn > 0 && turn % DIALOGUE_RANDOM_BLOCK_SIZE === 0) {
@@ -159,8 +324,24 @@ export async function POST(req: NextRequest) {
             speakerId: speaker.id,
             speakerName: speaker.name,
             speakerAvatar: speaker.avatar,
-            content: `${speaker.name} mock turn ${turnNumber}.`,
+            content: `${speaker.name} mock turn ${turnNumber}. I like speed and strategy.`,
           })}\n\n`))
+
+          history.push({
+            turn: turnNumber,
+            speakerId: speaker.id,
+            speakerName: speaker.name,
+            content: `${speaker.name} mock turn ${turnNumber}. I like speed and strategy.`,
+          })
+
+          const reactionEvents = pickReactionEvents(speakers, speaker.id, history, reactionCountByTurn)
+          for (const reactionEvent of reactionEvents) {
+            controller.enqueue(encoder.encode(`data: ${JSON.stringify(reactionEvent)}\n\n`))
+            reactionCountByTurn.set(
+              reactionEvent.targetTurn ?? 0,
+              (reactionCountByTurn.get(reactionEvent.targetTurn ?? 0) ?? 0) + 1,
+            )
+          }
 
           turn += 1
           await sleep(getDialogueDelayMs())
@@ -209,6 +390,8 @@ async function handleDialogue(
         const dialogueDelayMs = getDialogueDelayMs()
         const retryDelayMs = getRetryDelayMs()
         let activeBlock = pickRandomSpeakerBlock(speakers)
+        const history: DialogueHistoryEntry[] = []
+        const reactionCountByTurn = new Map<number, number>()
 
         let turn = 0
 
@@ -325,6 +508,22 @@ async function handleDialogue(
             content: finalLine,
           })
 
+          history.push({
+            turn: turn + 1,
+            speakerId: speaker.id,
+            speakerName: speaker.name,
+            content: finalLine,
+          })
+
+          const reactionEvents = pickReactionEvents(speakers, speaker.id, history, reactionCountByTurn)
+          for (const reactionEvent of reactionEvents) {
+            send(reactionEvent)
+            reactionCountByTurn.set(
+              reactionEvent.targetTurn ?? 0,
+              (reactionCountByTurn.get(reactionEvent.targetTurn ?? 0) ?? 0) + 1,
+            )
+          }
+
           turn += 1
 
           if (!signal.aborted && (maxTurns === null || turn < maxTurns)) {
@@ -337,7 +536,11 @@ async function handleDialogue(
         }
       } catch (err) {
         if (err instanceof Error && err.name !== 'AbortError') {
-          send({ type: 'error', message: err.message })
+          try {
+            send({ type: 'error', message: err.message })
+          } catch {
+            // Ignore failures to emit an error event when stream is already closing.
+          }
         }
       } finally {
         if (!signal.aborted) {

@@ -12,6 +12,11 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Generated test artifacts and reports:
+    "tests/reports/**",
+    "cypress/videos/**",
+    "cypress/screenshots/**",
+    "public/mockServiceWorker.js",
   ]),
 ]);
 

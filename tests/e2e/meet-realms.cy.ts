@@ -25,6 +25,7 @@ describe('ChatBotStep - Meet Realm Shell', () => {
     }).as('dialogue')
 
     cy.visit('/')
+    cy.wait('@dialogue')
   })
 
   it('renders the Meet Realm heading and panel', () => {
@@ -44,11 +45,7 @@ describe('ChatBotStep - Meet Realm Shell', () => {
   })
 
   it('runs dialogue on the single realm with full roster payload', () => {
-    cy.get('[data-testid="conversation-realm"]').within(() => {
-      cy.contains('Start').click()
-    })
-
-    cy.wait('@dialogue').its('request.body').should((body) => {
+    cy.get('@dialogue').its('request.body').should((body) => {
       expect(body.mode).to.equal('dialogue')
       expect(body.speakerIds).to.be.an('array').and.have.length(9)
       expect(body.speakerIds).to.include.members(['tempest', 'luma', 'echo'])

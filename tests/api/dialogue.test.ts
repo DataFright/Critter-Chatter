@@ -90,8 +90,27 @@ function readEvents(text: string) {
 describe('POST /api/chat — Dialogue Mode', () => {
   beforeEach(() => {
     process.env.OPENROUTER_API_KEY = 'test-key'
+    delete process.env.MOCK_AI
     mockStreamChat.mockReset()
     mockStreamChat.mockImplementation(defaultDialogueMock)
+  })
+
+  it('returns 500 when api key is missing', async () => {
+    delete process.env.OPENROUTER_API_KEY
+
+    const res = await POST(makeRequest(JSON.stringify({ mode: 'dialogue' })))
+
+    expect(res.status).toBe(500)
+    const data = await res.json()
+    expect(data.error).toContain('missing API key')
+  })
+
+  it('returns 400 for invalid JSON payload', async () => {
+    const res = await POST(makeRequest('{'))
+
+    expect(res.status).toBe(400)
+    const data = await res.json()
+    expect(data.error).toContain('Invalid JSON')
   })
 
   it('starts dialogue mode with SSE response', async () => {
@@ -209,4 +228,133 @@ describe('POST /api/chat — Dialogue Mode', () => {
 
     expect(events.find((event) => event.type === 'dialogue_done')?.total).toBe(3)
   })
+
+  it('emits preference-based reaction events from recent messages', async () => {
+    process.env.MOCK_AI = '1'
+
+    try {
+      const res = await POST(makeRequest(JSON.stringify({ mode: 'dialogue', maxTurns: 6 })))
+      const events = readEvents(await res.text())
+      const reactionEvents = events.filter((event) => event.type === 'dialogue_reaction')
+
+      expect(reactionEvents.length).toBeGreaterThan(0)
+      expect(reactionEvents[0]).toEqual(
+        expect.objectContaining({
+          type: 'dialogue_reaction',
+          speakerId: expect.any(String),
+          speakerName: expect.any(String),
+          speakerAvatar: expect.any(String),
+          targetTurn: expect.any(Number),
+          targetSpeakerId: expect.any(String),
+          targetSpeakerName: expect.any(String),
+          content: expect.any(String),
+          reactionScore: expect.any(Number),
+        }),
+      )
+
+      for (const reactionEvent of reactionEvents) {
+        expect(reactionEvent.speakerId).not.toBe(reactionEvent.targetSpeakerId)
+        expect(reactionEvent.targetTurn).toBeGreaterThan(0)
+        expect(reactionEvent.reactionScore).toBeGreaterThanOrEqual(2)
+      }
+    } finally {
+      delete process.env.MOCK_AI
+    }
+  })
+
+  it('can emit multiple reactions for the same target comment when it is popular', async () => {
+    process.env.MOCK_AI = '1'
+
+    try {
+      const res = await POST(makeRequest(JSON.stringify({ mode: 'dialogue', maxTurns: 8 })))
+      const events = readEvents(await res.text())
+      const reactionEvents = events.filter((event) => event.type === 'dialogue_reaction')
+      const reactionsByTargetTurn = new Map<number, number>()
+
+      for (const event of reactionEvents) {
+        const targetTurn = event.targetTurn as number
+        reactionsByTargetTurn.set(targetTurn, (reactionsByTargetTurn.get(targetTurn) ?? 0) + 1)
+      }
+
+      const hasMultiReactionTarget = Array.from(reactionsByTargetTurn.values()).some((count) => count >= 2)
+
+      expect(reactionEvents.length).toBeGreaterThan(0)
+      expect(hasMultiReactionTarget).toBe(true)
+    } finally {
+      delete process.env.MOCK_AI
+    }
+  })
+
+  it('simulation run reaches a comment with at least two reactions', async () => {
+    process.env.MOCK_AI = '1'
+
+    try {
+      let found = false
+
+      for (let attempt = 0; attempt < 5 && !found; attempt += 1) {
+        const res = await POST(makeRequest(JSON.stringify({ mode: 'dialogue', maxTurns: 12 })))
+        const events = readEvents(await res.text())
+        const reactionEvents = events.filter((event) => event.type === 'dialogue_reaction')
+        const reactionsByTargetTurn = new Map<number, number>()
+
+        for (const event of reactionEvents) {
+          const targetTurn = event.targetTurn as number
+          reactionsByTargetTurn.set(targetTurn, (reactionsByTargetTurn.get(targetTurn) ?? 0) + 1)
+        }
+
+        found = Array.from(reactionsByTargetTurn.values()).some((count) => count >= 2)
+      }
+
+      expect(found).toBe(true)
+    } finally {
+      delete process.env.MOCK_AI
+    }
+  })
+
+  it('emits an SSE error event when streaming fails repeatedly', async () => {
+    mockStreamChat.mockImplementation(async (_apiKey, _messages, _systemPrompt, onEvent) => {
+      onEvent({ type: 'error', message: 'Model exploded' })
+    })
+
+    const res = await POST(makeRequest(JSON.stringify({ mode: 'dialogue', maxTurns: 1 })))
+    const events = readEvents(await res.text())
+
+    const errorEvent = events.find((event) => event.type === 'error')
+    expect(errorEvent?.message).toContain('Model exploded')
+    expect(events.some((event) => event.type === 'dialogue_message')).toBe(false)
+  })
+
+  it('recovers from transient stream failures within retry limit', async () => {
+    let calls = 0
+    mockStreamChat.mockImplementation(async (_apiKey, _messages, _systemPrompt, onEvent) => {
+      calls += 1
+
+      if (calls < 3) {
+        onEvent({ type: 'error', message: 'temporary failure' })
+        return
+      }
+
+      onEvent({ type: 'content', token: 'Recovered line', content: 'Recovered line' })
+      onEvent({ type: 'done', content: 'Recovered line' })
+    })
+
+    const res = await POST(makeRequest(JSON.stringify({ mode: 'dialogue', maxTurns: 1 })))
+    const events = readEvents(await res.text())
+
+    const messageEvent = events.find((event) => event.type === 'dialogue_message')
+    expect(calls).toBeGreaterThanOrEqual(3)
+    expect(messageEvent?.content).toBe('Recovered line')
+    expect(events.find((event) => event.type === 'error')).toBeUndefined()
+  })
+
+  it.skip('streams 1000 messages when maxTurns is set to 1000', async () => {
+    const res = await POST(makeRequest(JSON.stringify({ mode: 'dialogue', maxTurns: 1000 })))
+    const events = readEvents(await res.text())
+
+    const messageEvents = events.filter((event) => event.type === 'dialogue_message')
+    const doneEvent = events.find((event) => event.type === 'dialogue_done')
+
+    expect(messageEvents).toHaveLength(1000)
+    expect(doneEvent?.total).toBe(1000)
+  }, 60000)
 })

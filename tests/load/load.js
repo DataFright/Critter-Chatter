@@ -8,7 +8,9 @@ const REPORTS_DIR = path.join(__dirname, '../reports/load')
 fs.mkdirSync(REPORTS_DIR, { recursive: true })
 
 const BASE_URL = process.env.BASE_URL || 'http://localhost:3010'
-const STRESS_EXPECTED_TURNS = 100
+const STRESS_EXPECTED_TURNS = Number(process.env.STRESS_EXPECTED_TURNS || 100)
+const STRESS_RUNS = Number(process.env.STRESS_RUNS || 6)
+const STRESS_CONCURRENCY = Number(process.env.STRESS_CONCURRENCY || 3)
 
 function run(opts) {
   return new Promise((resolve, reject) => {
@@ -116,6 +118,7 @@ async function runDialogueStress({ url, runs = 6, concurrency = 3, expectedTurns
 
     const messageCount = messageEvents.length
     const doneTotal = Number(doneEvent?.total ?? 0)
+    const turnNumbers = messageEvents.map((event) => Number(event?.turn ?? 0))
 
     if (messageCount !== expectedTurns) {
       throw new Error(`Expected ${expectedTurns} dialogue messages, received ${messageCount}`)
@@ -123,6 +126,13 @@ async function runDialogueStress({ url, runs = 6, concurrency = 3, expectedTurns
 
     if (doneTotal !== expectedTurns) {
       throw new Error(`Expected dialogue_done total ${expectedTurns}, received ${doneTotal}`)
+    }
+
+    for (let expectedTurn = 1; expectedTurn <= expectedTurns; expectedTurn += 1) {
+      const actualTurn = turnNumbers[expectedTurn - 1]
+      if (actualTurn !== expectedTurn) {
+        throw new Error(`Skipped or out-of-order turn detected at ${expectedTurn}, received ${actualTurn}`)
+      }
     }
 
     latencies.push(performance.now() - start)
@@ -197,8 +207,8 @@ const dialogueResult = await runDialogueFetchLoad({
 console.log(`\n💥 Stress test: /api/chat (${STRESS_EXPECTED_TURNS} turns per run)`) 
 const dialogueStressResult = await runDialogueStress({
   url: `${BASE_URL}/api/chat`,
-  runs: 6,
-  concurrency: 3,
+  runs: STRESS_RUNS,
+  concurrency: STRESS_CONCURRENCY,
 })
 
 const results = {

@@ -1,21 +1,31 @@
 'use client'
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { ALL_CHARACTERS, getCharacterById } from '@/lib/characters'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { ALL_CHARACTERS } from '@/lib/characters'
 
 const INITIAL_SPEAKER_IDS = ALL_CHARACTERS.map((character) => character.id)
+const MAX_DISPLAY_MESSAGES = 100
 
 export interface ConversationMessage {
   id: string
+  kind: 'message' | 'reaction'
   turn: number
   speakerId: string
   speakerName: string
   speakerAvatar: string
   content: string
+  targetTurn?: number
+  targetSpeakerId?: string
+  targetSpeakerName?: string
+  reactionScore?: number
 }
 
 function makeMessageId(turn: number, speakerId: string) {
   return `conversation-${turn}-${speakerId}`
+}
+
+function makeReactionId(targetTurn: number, reactorId: string) {
+  return `reaction-${targetTurn}-${reactorId}`
 }
 
 function shuffleSpeakerIds(): string[] {
@@ -29,15 +39,34 @@ function shuffleSpeakerIds(): string[] {
   return ids
 }
 
+function capDisplayedMessages(messages: ConversationMessage[]) {
+  const orderedTurns = messages
+    .filter((message) => message.kind === 'message')
+    .map((message) => message.turn)
+    .sort((a, b) => a - b)
+
+  if (orderedTurns.length <= MAX_DISPLAY_MESSAGES) {
+    return messages
+  }
+
+  const turnsToDrop = new Set(orderedTurns.slice(0, orderedTurns.length - MAX_DISPLAY_MESSAGES))
+
+  return messages.filter((message) => {
+    if (message.kind === 'message') {
+      return !turnsToDrop.has(message.turn)
+    }
+
+    return !turnsToDrop.has(message.targetTurn ?? -1)
+  })
+}
+
 export function useConversationRealm() {
   const [speakerIds, setSpeakerIds] = useState<string[]>(INITIAL_SPEAKER_IDS)
   const [messages, setMessages] = useState<ConversationMessage[]>([])
   const [isRunning, setIsRunning] = useState(false)
   const [error, setError] = useState('')
-  const [turnCount, setTurnCount] = useState(0)
   const abortRef = useRef<AbortController | null>(null)
-
-  const speakers = useMemo(() => speakerIds.map((id) => getCharacterById(id)), [speakerIds])
+  const autoStartedRef = useRef(false)
 
   useEffect(() => {
     setSpeakerIds(shuffleSpeakerIds())
@@ -45,7 +74,6 @@ export function useConversationRealm() {
 
   const resetConversation = useCallback(() => {
     setMessages([])
-    setTurnCount(0)
     setError('')
   }, [])
 
@@ -55,14 +83,6 @@ export function useConversationRealm() {
     setIsRunning(false)
   }, [])
 
-  const randomizeSpeakers = useCallback(() => {
-    if (isRunning) {
-      stopConversation()
-    }
-    resetConversation()
-    setSpeakerIds(shuffleSpeakerIds())
-  }, [isRunning, resetConversation, stopConversation])
-
   const appendOrUpdateMessage = useCallback(
     (turn: number, speakerId: string, speakerName: string, speakerAvatar: string, content: string) => {
       const id = makeMessageId(turn, speakerId)
@@ -70,15 +90,17 @@ export function useConversationRealm() {
       setMessages((prev) => {
         const existing = prev.find((message) => message.id === id)
         if (existing) {
-          return prev.map((message) =>
+          const updated = prev.map((message) =>
             message.id === id ? { ...message, content } : message,
           )
+          return capDisplayedMessages(updated)
         }
 
-        return [
+        const updated = [
           ...prev,
           {
             id,
+            kind: 'message' as const,
             turn,
             speakerId,
             speakerName,
@@ -86,6 +108,63 @@ export function useConversationRealm() {
             content,
           },
         ]
+
+        return capDisplayedMessages(updated)
+      })
+    },
+    [],
+  )
+
+  const appendOrUpdateReaction = useCallback(
+    (
+      reactorId: string,
+      reactorName: string,
+      reactorAvatar: string,
+      targetTurn: number,
+      targetSpeakerId: string,
+      targetSpeakerName: string,
+      content: string,
+      reactionScore?: number,
+    ) => {
+      const id = makeReactionId(targetTurn, reactorId)
+
+      setMessages((prev) => {
+        const hasTargetMessage = prev.some(
+          (message) => message.kind === 'message' && message.turn === targetTurn,
+        )
+
+        if (!hasTargetMessage) {
+          return prev
+        }
+
+        const existing = prev.find((message) => message.id === id)
+        if (existing) {
+          const updated = prev.map((message) =>
+            message.id === id
+              ? { ...message, content, reactionScore }
+              : message,
+          )
+          return capDisplayedMessages(updated)
+        }
+
+        const updated = [
+          ...prev,
+          {
+            id,
+            kind: 'reaction' as const,
+            turn: targetTurn,
+            speakerId: reactorId,
+            speakerName: reactorName,
+            speakerAvatar: reactorAvatar,
+            content,
+            targetTurn,
+            targetSpeakerId,
+            targetSpeakerName,
+            reactionScore,
+          },
+        ]
+
+        return capDisplayedMessages(updated)
       })
     },
     [],
@@ -142,6 +221,10 @@ export function useConversationRealm() {
               speakerId?: string
               speakerName?: string
               speakerAvatar?: string
+              targetTurn?: number
+              targetSpeakerId?: string
+              targetSpeakerName?: string
+              reactionScore?: number
               chunk?: string
               content?: string
               message?: string
@@ -193,13 +276,30 @@ export function useConversationRealm() {
                 event.speakerAvatar,
                 event.content ?? '',
               )
-              setTurnCount(event.turn)
+            }
+
+            if (
+              event.type === 'dialogue_reaction' &&
+              event.speakerId &&
+              event.speakerName &&
+              event.speakerAvatar &&
+              event.targetTurn &&
+              event.targetSpeakerId &&
+              event.targetSpeakerName
+            ) {
+              appendOrUpdateReaction(
+                event.speakerId,
+                event.speakerName,
+                event.speakerAvatar,
+                event.targetTurn,
+                event.targetSpeakerId,
+                event.targetSpeakerName,
+                event.content ?? '',
+                event.reactionScore,
+              )
             }
 
             if (event.type === 'dialogue_done') {
-              if (event.total) {
-                setTurnCount(event.total)
-              }
               setIsRunning(false)
             }
 
@@ -224,21 +324,20 @@ export function useConversationRealm() {
       setIsRunning(false)
       abortRef.current = null
     }
-  }, [appendOrUpdateMessage, isRunning, resetConversation, speakerIds])
+  }, [appendOrUpdateMessage, appendOrUpdateReaction, isRunning, resetConversation, speakerIds])
+
+  useEffect(() => {
+    if (autoStartedRef.current) return
+
+    autoStartedRef.current = true
+    void startConversation()
+  }, [startConversation])
 
   return {
-    characters: ALL_CHARACTERS,
-    speakerIds,
-    speakers,
     messages,
     isRunning,
     error,
-    turnCount,
-    maxTurns: null,
-    canStart: !isRunning,
     startConversation,
     stopConversation,
-    resetConversation,
-    randomizeSpeakers,
   }
 }

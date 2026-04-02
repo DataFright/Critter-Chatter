@@ -15,6 +15,7 @@ export interface StreamEvent {
     | 'dialogue_turn_started'
     | 'dialogue_chunk'
     | 'dialogue_message'
+    | 'dialogue_reaction'
     | 'dialogue_done'
   text?: string
   token?: string
@@ -25,6 +26,10 @@ export interface StreamEvent {
   speakerId?: string
   speakerName?: string
   speakerAvatar?: string
+  targetTurn?: number
+  targetSpeakerId?: string
+  targetSpeakerName?: string
+  reactionScore?: number
   reasoning_details?: unknown[]
   message?: string
 }

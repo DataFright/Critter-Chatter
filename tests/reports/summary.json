@@ -1,164 +1,241 @@
 {
-  "timestamp": "2026-03-31T21:26:59.371Z",
+  "timestamp": "2026-04-02T03:05:14.126Z",
   "status": "PASS",
   "totals": {
-    "tests": 21,
-    "passed": 21,
+    "tests": 33,
+    "passed": 33,
     "failed": 0,
     "passRate": "100%"
   },
   "vitest": {
-    "tests": 11,
-    "passed": 11,
+    "tests": 18,
+    "passed": 18,
     "failed": 0,
     "testDetails": [
       {
+        "name": "returns 500 when api key is missing",
+        "status": "passed",
+        "duration": 8.704499999999825,
+        "file": "chatbotstep/tests/api/dialogue.test.ts"
+      },
+      {
+        "name": "returns 400 for invalid JSON payload",
+        "status": "passed",
+        "duration": 0.7346999999999753,
+        "file": "chatbotstep/tests/api/dialogue.test.ts"
+      },
+      {
         "name": "starts dialogue mode with SSE response",
         "status": "passed",
-        "duration": 9.61629999999991,
+        "duration": 2.8726999999998952,
         "file": "chatbotstep/tests/api/dialogue.test.ts"
       },
       {
         "name": "rejects duplicate dialogue speakers",
         "status": "passed",
-        "duration": 1.3393000000000939,
+        "duration": 0.5751000000000204,
         "file": "chatbotstep/tests/api/dialogue.test.ts"
       },
       {
         "name": "rejects payloads with fewer than 3 speakers",
         "status": "passed",
-        "duration": 0.5671999999999571,
+        "duration": 0.5401999999999134,
         "file": "chatbotstep/tests/api/dialogue.test.ts"
       },
       {
         "name": "rejects invalid speaker IDs",
         "status": "passed",
-        "duration": 0.5131999999998698,
+        "duration": 0.555599999999913,
         "file": "chatbotstep/tests/api/dialogue.test.ts"
       },
       {
         "name": "rejects non-dialogue modes for Meet Realm-only API",
         "status": "passed",
-        "duration": 0.5264000000001943,
+        "duration": 0.5120999999999185,
         "file": "chatbotstep/tests/api/dialogue.test.ts"
       },
       {
         "name": "streams configured turns before completion when maxTurns is provided",
         "status": "passed",
-        "duration": 105.67200000000003,
+        "duration": 141.0508000000002,
         "file": "chatbotstep/tests/api/dialogue.test.ts"
       },
       {
         "name": "randomizes the speaking block every 3 turns (unique within each block)",
         "status": "passed",
-        "duration": 132.99710000000005,
+        "duration": 139.4308000000001,
         "file": "chatbotstep/tests/api/dialogue.test.ts"
       },
       {
         "name": "uses character fallback line when a turn yields no dialogue content",
         "status": "passed",
-        "duration": 33.881599999999935,
+        "duration": 30.084300000000212,
         "file": "chatbotstep/tests/api/dialogue.test.ts"
       },
       {
         "name": "defaults to full roster when speakerIds are omitted",
         "status": "passed",
-        "duration": 68.57330000000002,
+        "duration": 82.16879999999992,
         "file": "chatbotstep/tests/api/dialogue.test.ts"
       },
       {
         "name": "emits dialogue_done when maxTurns is provided",
         "status": "passed",
-        "duration": 31.08680000000004,
+        "duration": 12.41359999999986,
+        "file": "chatbotstep/tests/api/dialogue.test.ts"
+      },
+      {
+        "name": "emits preference-based reaction events from recent messages",
+        "status": "passed",
+        "duration": 79.97730000000001,
+        "file": "chatbotstep/tests/api/dialogue.test.ts"
+      },
+      {
+        "name": "can emit multiple reactions for the same target comment when it is popular",
+        "status": "passed",
+        "duration": 90.96979999999985,
+        "file": "chatbotstep/tests/api/dialogue.test.ts"
+      },
+      {
+        "name": "simulation run reaches a comment with at least two reactions",
+        "status": "passed",
+        "duration": 139.12379999999985,
+        "file": "chatbotstep/tests/api/dialogue.test.ts"
+      },
+      {
+        "name": "emits an SSE error event when streaming fails repeatedly",
+        "status": "passed",
+        "duration": 31.940399999999954,
+        "file": "chatbotstep/tests/api/dialogue.test.ts"
+      },
+      {
+        "name": "recovers from transient stream failures within retry limit",
+        "status": "passed",
+        "duration": 15.454299999999876,
+        "file": "chatbotstep/tests/api/dialogue.test.ts"
+      },
+      {
+        "name": "streams 1000 messages when maxTurns is set to 1000",
+        "status": "skipped",
         "file": "chatbotstep/tests/api/dialogue.test.ts"
       },
       {
         "name": "returns ok: true",
         "status": "passed",
-        "duration": 6.011199999999917,
+        "duration": 5.416500000000042,
         "file": "chatbotstep/tests/api/health.test.ts"
       }
     ]
   },
   "cypress": {
-    "tests": 10,
-    "passed": 10,
+    "tests": 15,
+    "passed": 15,
     "failed": 0,
     "testDetails": [
       {
         "name": "ChatBotStep - Meet Realm Shell renders the Meet Realm heading and panel",
         "status": "passed",
-        "duration": 189,
+        "duration": 200,
         "file": "tests/e2e/meet-realms.cy.ts"
       },
       {
         "name": "ChatBotStep - Meet Realm Shell keeps a single conversation surface visible",
         "status": "passed",
-        "duration": 45,
+        "duration": 66,
         "file": "tests/e2e/meet-realms.cy.ts"
       },
       {
         "name": "ChatBotStep - Meet Realm Shell shows larger layout width and height characteristics",
         "status": "passed",
-        "duration": 45,
+        "duration": 64,
         "file": "tests/e2e/meet-realms.cy.ts"
       },
       {
         "name": "ChatBotStep - Meet Realm Shell runs dialogue on the single realm with full roster payload",
         "status": "passed",
-        "duration": 168,
+        "duration": 86,
         "file": "tests/e2e/meet-realms.cy.ts"
       },
       {
-        "name": "ChatBotStep - Meet Realm renders the full roster panel and random-order note",
+        "name": "ChatBotStep - Meet Realm renders the Meet Realm heading",
         "status": "passed",
-        "duration": 596,
+        "duration": 583,
         "file": "tests/e2e/conversation-realm.cy.ts"
       },
       {
         "name": "ChatBotStep - Meet Realm uses dark scrollbar styling class on the message panel",
         "status": "passed",
-        "duration": 61,
+        "duration": 80,
         "file": "tests/e2e/conversation-realm.cy.ts"
       },
       {
         "name": "ChatBotStep - Meet Realm sends all characters in payload on start",
         "status": "passed",
-        "duration": 151,
+        "duration": 69,
         "file": "tests/e2e/conversation-realm.cy.ts"
       },
       {
         "name": "ChatBotStep - Meet Realm renders messages in one column",
         "status": "passed",
-        "duration": 154,
+        "duration": 87,
         "file": "tests/e2e/conversation-realm.cy.ts"
       },
       {
-        "name": "ChatBotStep - Meet Realm shows live progress without a fixed turn cap",
+        "name": "ChatBotStep - Meet Realm shows live speaker count in the header",
         "status": "passed",
-        "duration": 129,
+        "duration": 68,
         "file": "tests/e2e/conversation-realm.cy.ts"
       },
       {
         "name": "ChatBotStep - Meet Realm applies unique bubble colors for different speakers",
         "status": "passed",
-        "duration": 153,
+        "duration": 79,
+        "file": "tests/e2e/conversation-realm.cy.ts"
+      },
+      {
+        "name": "ChatBotStep - Meet Realm renders reactions in side sections as emoji symbols",
+        "status": "passed",
+        "duration": 103,
+        "file": "tests/e2e/conversation-realm.cy.ts"
+      },
+      {
+        "name": "ChatBotStep - Meet Realm forces one comment to have multiple reactions and renders all icons on screen",
+        "status": "passed",
+        "duration": 85,
+        "file": "tests/e2e/conversation-realm.cy.ts"
+      },
+      {
+        "name": "ChatBotStep - Meet Realm keeps only the latest 100 displayed messages after long runs",
+        "status": "passed",
+        "duration": 165,
+        "file": "tests/e2e/conversation-realm.cy.ts"
+      },
+      {
+        "name": "ChatBotStep - Meet Realm deletes the first message once message count exceeds 100",
+        "status": "passed",
+        "duration": 154,
+        "file": "tests/e2e/conversation-realm.cy.ts"
+      },
+      {
+        "name": "ChatBotStep - Meet Realm shows an error banner when dialogue request fails",
+        "status": "passed",
+        "duration": 146,
         "file": "tests/e2e/conversation-realm.cy.ts"
       }
     ]
   },
   "coverage": {
-    "statements": "96.9%",
-    "branches": "65.6%",
-    "functions": "99.0%",
-    "lines": "96.9%",
+    "statements": "98.2%",
+    "branches": "70.2%",
+    "functions": "99.4%",
+    "lines": "98.2%",
     "files": [
       {
         "file": "route.ts",
-        "statements": "75.9",
-        "branches": "62.5",
-        "functions": "95.2",
-        "lines": "75.9"
+        "statements": "94.4",
+        "branches": "80.7",
+        "functions": "97.0",
+        "lines": "94.4"
       },
       {
         "file": "route.ts",
